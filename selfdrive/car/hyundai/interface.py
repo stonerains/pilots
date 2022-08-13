@@ -4,7 +4,7 @@ from typing import List
 from cereal import car
 from common.numpy_fast import interp
 from common.conversions import Conversions as CV
-from selfdrive.car.hyundai.values import CAR, Buttons, CarControllerParams, HDA2_CAR, FEATURES
+from selfdrive.car.hyundai.values import CAR, Buttons, CarControllerParams, CANFD_CAR, FEATURES
 from selfdrive.car import STD_CARGO_KG, scale_rot_inertia, scale_tire_stiffness, gen_empty_fingerprint, get_safety_config
 from selfdrive.car.interfaces import CarInterfaceBase
 from common.params import Params
@@ -45,7 +45,12 @@ class CarInterface(CarInterfaceBase):
     ret.openpilotLongitudinalControl = Params().get_bool('LongControlEnabled')
 
     ret.carName = "hyundai"
-    ret.safetyConfigs = [get_safety_config(car.CarParams.SafetyModel.hyundaiCommunity, 0)]
+
+    if candidate in CANFD_CAR:
+      ret.safetyConfigs = [get_safety_config(car.CarParams.SafetyModel.noOutput),
+                           get_safety_config(car.CarParams.SafetyModel.hyundaiCanfd)]
+    else:
+      ret.safetyConfigs = [get_safety_config(car.CarParams.SafetyModel.hyundaiCommunity, 0)]
 
     tire_stiffness_factor = 1.
     ret.maxSteeringAngleDeg = 1080.
@@ -286,8 +291,6 @@ class CarInterface(CarInterfaceBase):
       ret.mass = 2055 + STD_CARGO_KG
       ret.wheelbase = 2.9
       ret.steerRatio = 16.
-      ret.safetyConfigs = [get_safety_config(car.CarParams.SafetyModel.noOutput),
-                           get_safety_config(car.CarParams.SafetyModel.hyundaiHDA2)]
       tire_stiffness_factor = 0.65
 
       if ret.lateralTuning.which() == 'torque':
@@ -298,8 +301,11 @@ class CarInterface(CarInterfaceBase):
 
     if ret.centerToFront == 0:
       ret.centerToFront = ret.wheelbase * 0.4
-
-
+    
+    if ret.lateralTuning.which() == 'torque':
+      #selfdrive/car/torque_data/params.yaml, https://codebeautify.org/jsonviewer/y220b1623
+      torque_tune(ret.lateralTuning, 4.493208192966529, 0.0863709736632968)
+      
     # TODO: get actual value, for now starting with reasonable value for
     # civic and scaling by mass and wheelbase
     ret.rotationalInertia = scale_rot_inertia(ret.mass, ret.wheelbase)
@@ -315,7 +321,7 @@ class CarInterface(CarInterfaceBase):
 
     ret.stoppingControl = True
 
-    if candidate in HDA2_CAR:
+    if candidate in CANFD_CAR:
       ret.enableBsm = 0x58b in fingerprint[0]
       ret.radarOffCan = False
     else:

@@ -9,20 +9,19 @@ class CarControllerParams:
 
   def __init__(self, CP):
     self.STEER_MAX = 409
+    self.STEER_DELTA_UP = 5
 
-    if CP.lateralTuning.which == 'torque':
-      self.STEER_DELTA_UP = 5
-      self.STEER_DELTA_DOWN = 8
+    if CP.carFingerprint in [CAR.KONA_HEV, CAR.KONA_EV]:
+      self.STEER_DELTA_DOWN = 7
     else:
-      self.STEER_DELTA_UP = 3
-      self.STEER_DELTA_DOWN = 6
+      self.STEER_DELTA_DOWN = 7
 
     self.STEER_DRIVER_ALLOWANCE = 50
     self.STEER_DRIVER_MULTIPLIER = 2
     self.STEER_DRIVER_FACTOR = 1
     self.STEER_THRESHOLD = 150
 
-    if CP.carFingerprint in HDA2_CAR:
+    if CP.carFingerprint in CANFD_CAR:
       self.STEER_MAX = 270
       self.STEER_DRIVER_ALLOWANCE = 250
       self.STEER_DRIVER_MULTIPLIER = 2
@@ -228,7 +227,7 @@ FEATURES = {
   "has_hda": {CAR.GENESIS_G80, CAR.GENESIS_EQ900, CAR.GENESIS_EQ900_L},
 
   # these cars use the FCA11 message for the AEB and FCW signals, all others use SCC12
-  "use_fca": {CAR.SONATA, CAR.ELANTRA, CAR.ELANTRA_GT_I30, CAR.STINGER, CAR.IONIQ_EV_2020, CAR.IONIQ_PHEV, CAR.KONA, CAR.KONA_EV, CAR.FORTE,
+  "use_fca": {CAR.KONA_HEV, CAR.SONATA, CAR.ELANTRA, CAR.ELANTRA_GT_I30, CAR.STINGER, CAR.IONIQ_EV_2020, CAR.IONIQ_PHEV, CAR.KONA, CAR.KONA_EV, CAR.FORTE,
               CAR.PALISADE, CAR.GENESIS_G70, CAR.SANTA_FE, CAR.SELTOS, CAR.ELANTRA_2021, CAR.ELANTRA_HEV_2021,
               CAR.K9, CAR.GENESIS_G90, CAR.SANTA_FE_2022, CAR.SANTA_FE_HEV_2022, CAR.K5_2021, CAR.MOHAVE},
 
@@ -246,12 +245,12 @@ EV_CAR = {CAR.IONIQ_EV_LTD, CAR.IONIQ_EV_2020, CAR.KONA_EV, CAR.NIRO_EV}
 
 EV_HYBRID_CAR = EV_CAR | HYBRID_CAR
 
-HDA2_CAR = {CAR.EV6, }
+CANFD_CAR = {CAR.EV6, }
 
 DBC = {
   # genesis
   CAR.GENESIS: dbc_dict('hyundai_kia_generic', None),
-  CAR.GENESIS_G70: dbc_dict('hyundai_kia_generic', None),
+  CAR.GENESIS_G70: dbc_dict('hyundai_kia_generic', None),  
   CAR.GENESIS_G80: dbc_dict('hyundai_kia_generic', None),
   CAR.GENESIS_EQ900: dbc_dict('hyundai_kia_generic', None),
   CAR.GENESIS_EQ900_L: dbc_dict('hyundai_kia_generic', None),
@@ -290,9 +289,9 @@ DBC = {
   CAR.K5_2021: dbc_dict('hyundai_kia_generic', None),
   CAR.K5_HEV: dbc_dict('hyundai_kia_generic', None),
   CAR.K5_HEV_2022: dbc_dict('hyundai_kia_generic', None),
-  CAR.SPORTAGE: dbc_dict('hyundai_kia_generic', None),
+  CAR.SPORTAGE: dbc_dict('hyundai_kia_generic', None),  
   CAR.SORENTO: dbc_dict('hyundai_kia_generic', None),
-  CAR.STINGER: dbc_dict('hyundai_kia_generic', None),
+  CAR.STINGER: dbc_dict('hyundai_kia_generic', None),  
   CAR.NIRO_EV: dbc_dict('hyundai_kia_generic', None),
   CAR.NIRO_HEV: dbc_dict('hyundai_kia_generic', None),
   CAR.NIRO_HEV_2021: dbc_dict('hyundai_kia_generic', None),
