@@ -200,12 +200,14 @@ class Panda:
   FLAG_TESLA_POWERTRAIN = 1
   FLAG_TESLA_LONG_CONTROL = 2
 
+  FLAG_VOLKSWAGEN_LONG_CONTROL = 1
+
   FLAG_CHRYSLER_RAM_DT = 1
   FLAG_CHRYSLER_RAM_HD = 2
 
   FLAG_SUBARU_GEN2 = 1
 
-  FLAG_SUBARU_GEN2 = 1
+  FLAG_GM_HW_CAM = 1
 
   def __init__(self, serial: Optional[str] = None, claim: bool = True):
     self._serial = serial
@@ -377,6 +379,16 @@ class Panda:
     # reflash after recover
     self.connect(True, True)
     self.flash()
+
+  @staticmethod
+  def wait_for_dfu(dfu_serial: str, timeout: Optional[int] = None) -> bool:
+    t_start = time.monotonic()
+    while dfu_serial not in PandaDFU.list():
+      print("waiting for DFU...")
+      time.sleep(0.1)
+      if timeout is not None and (time.monotonic() - t_start) > timeout:
+        return False
+    return True
 
   @staticmethod
   def wait_for_dfu(dfu_serial: str, timeout: Optional[int] = None) -> bool:

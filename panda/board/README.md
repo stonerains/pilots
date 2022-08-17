@@ -21,7 +21,7 @@ Programming
 **Panda**
 
 ```
-./flash.sh           # for any panda
+./flash.sh           # for any pandas
 ```
 
 Troubleshooting

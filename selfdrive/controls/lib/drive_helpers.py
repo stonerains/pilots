@@ -10,11 +10,12 @@ from selfdrive.ntune import ntune_common_get
 # WARNING: this value was determined based on the model's training distribution,
 #          model predictions above this speed can be unpredictable
 # kph
-V_CRUISE_MAX = 180
-V_CRUISE_MIN = 5  # kph
+V_CRUISE_MAX = 145
+V_CRUISE_MIN = 30
 V_CRUISE_DELTA_MI = 5 * CV.MPH_TO_KPH
 V_CRUISE_DELTA_KM = 10
 V_CRUISE_ENABLE_MIN = 30
+V_CRUISE_INITIAL = 255  # kph
 
 LAT_MPC_N = 16
 LON_MPC_N = 32
@@ -124,8 +125,8 @@ def get_lag_adjusted_curvature(CP, v_ego, psis, curvatures, curvature_rates):
   desired_curvature = 2 * average_curvature_desired - current_curvature_desired
 
   # This is the "desired rate of the setpoint" not an actual desired rate
-  desired_curvature_rate = curvature_rates[0] * 1.5
-  max_curvature_rate = (MAX_LATERAL_JERK * 2 ) / (v_ego**2)
+  desired_curvature_rate = curvature_rates[0]
+  max_curvature_rate = MAX_LATERAL_JERK / (v_ego**2) # inexact calculation, check https://github.com/commaai/openpilot/pull/24755
   safe_desired_curvature_rate = clip(desired_curvature_rate,
                                           -max_curvature_rate,
                                           max_curvature_rate)
