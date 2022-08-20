@@ -9,12 +9,12 @@ class CarControllerParams:
 
   def __init__(self, CP):
     self.STEER_MAX = 384
-    self.STEER_DELTA_UP = 5
+    self.STEER_DELTA_UP = 4
 
     if CP.carFingerprint in [CAR.KONA_HEV, CAR.KONA_EV]:
       self.STEER_DELTA_DOWN = 7
     else:
-      self.STEER_DELTA_DOWN = 8
+      self.STEER_DELTA_DOWN = 6
 
     self.STEER_DRIVER_ALLOWANCE = 50
     self.STEER_DRIVER_MULTIPLIER = 2

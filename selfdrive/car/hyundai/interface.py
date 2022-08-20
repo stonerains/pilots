@@ -186,9 +186,10 @@ class CarInterface(CarInterfaceBase):
       tire_stiffness_factor = 0.7
       ret.centerToFront = ret.wheelbase * 0.4
     elif candidate in [CAR.KONA_HEV, CAR.KONA_EV]:
-      ret.mass = 1395. + STD_CARGO_KG
+      ret.mass = 1427. + STD_CARGO_KG
       ret.wheelbase = 2.6
       tire_stiffness_factor = 0.7
+      ret.steerRatio = 13.27
       ret.centerToFront = ret.wheelbase * 0.4
 
       if ret.lateralTuning.which() == 'torque':
