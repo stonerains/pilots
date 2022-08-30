@@ -148,7 +148,8 @@ def create_scc11(packer, frame, enabled, set_speed, lead_visible, scc_live, scc1
     values["MainMode_ACC"] = 1
     values["VSetDis"] = set_speed
     values["ObjValid"] = 1 if enabled else 0
-#  values["ACC_ObjStatus"] = lead_visible
+    values["DriverAlertDisplay"] = 0
+    #values["ACC_ObjStatus"] = 0
 
   return packer.make_can_msg("SCC11", 0, values)
 
@@ -181,7 +182,7 @@ def create_scc12(packer, apply_accel, enabled, cnt, scc_live, scc12, gaspressed,
 
   values["CR_VSM_ChkSum"] = 0
   dat = packer.make_can_msg("SCC12", 0, values)[2]
-  values["CR_VSM_ChkSum"] = 16 - sum([sum(divmod(i, 16)) for i in dat]) % 16
+  values["CR_VSM_ChkSum"] = 0x10 - sum(sum(divmod(i, 16)) for i in dat) % 0x10
 
   return packer.make_can_msg("SCC12", 0, values)
 

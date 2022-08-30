@@ -43,18 +43,6 @@ int default_rx_hook(CANPacket_t *to_push) {
           Lcan_bus1 = false;
           puts("  Lcan not on bus1\n");
       }
-      // set CAN2 mode to normal if int_cnt expaired
-      if (OBD_cnt == 11 && !Fwd_bus1 && current_board->has_obd) {
-        current_board->set_can_mode(CAN_MODE_OBD_CAN2);
-        puts("  checking bus1: setting can2 mode obd\n");
-      }
-      if (OBD_cnt == 1 && !Fwd_obd && !Fwd_bus1 && current_board->has_obd) {
-        current_board->set_can_mode(CAN_MODE_NORMAL);
-        puts("  OBD2 CAN empty: setting can2 mode normal\n");
-      }
-      if (OBD_cnt > 0) {
-        OBD_cnt--;
-      }
     }
   }
 
@@ -103,10 +91,6 @@ int default_rx_hook(CANPacket_t *to_push) {
 
 static const addr_checks* nooutput_init(uint16_t param) {
   UNUSED(param);
-  if (current_board->has_obd && Fwd_obd) {
-    current_board->set_can_mode(CAN_MODE_OBD_CAN2);
-    puts("setting can mode obd\n");
-  }
   return &default_rx_checks;
 }
 
@@ -140,7 +124,8 @@ static int default_fwd_hook(int bus_num, CANPacket_t *to_fwd) {
   if (bus_num == 2 && Fwd_bus2) {
     bus_fwd = (Fwd_bus1 || Fwd_obd) ? 10 : 0;
   }
-    // Code for LKA/LFA/HDA anti-nagging.
+
+  // Code for LKA/LFA/HDA anti-nagging.
   if (addr == 593 && bus_fwd != -1) {
     uint8_t dat[8];
     int New_Chksum2 = 0;
@@ -179,14 +164,14 @@ static int default_fwd_hook(int bus_num, CANPacket_t *to_fwd) {
         }
         New_Chksum2 %= 256;
       } else if (MDPS12_checksum) {
-        uint8_t crc = 0xFF;
+        uint8_t crc = 0xFFU;
         uint8_t poly = 0x1D;
         int i, j;
         for (i=0; i<8; i++){
           if (i!=3){ //don't include CRC byte
             crc ^= dat[i];
             for (j=0; j<8; j++) {
-              if ((crc & 0x80) != 0U) {
+              if ((crc & 0x80U) != 0U) {
                 crc = (crc << 1) ^ poly;
               } else {
                 crc <<= 1;
@@ -194,7 +179,7 @@ static int default_fwd_hook(int bus_num, CANPacket_t *to_fwd) {
             }
           }
         }
-        crc ^= 0xFF;
+        crc ^= 0xFFU;
         crc %= 256;
         New_Chksum2 = crc;
       }
@@ -223,10 +208,6 @@ bool alloutput_passthrough = false;
 static const addr_checks* alloutput_init(uint16_t param) {
   controls_allowed = true;
   alloutput_passthrough = GET_FLAG(param, ALLOUTPUT_PARAM_PASSTHROUGH);
-  if (current_board->has_obd && Fwd_obd) {
-    current_board->set_can_mode(CAN_MODE_OBD_CAN2);
-    puts("  setting can mode obd\n");
-  }
   return &default_rx_checks;
 }
 

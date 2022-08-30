@@ -294,11 +294,6 @@ static int hyundai_community_fwd_hook(int bus_num, CANPacket_t *to_fwd) {
 static const addr_checks* hyundai_community_init(uint16_t param) {
   UNUSED(param);
 
-  if (current_board->has_obd && Fwd_obd) {
-    current_board->set_can_mode(CAN_MODE_OBD_CAN2);
-    puts("  MDPS or SCC on OBD2 CAN: setting can mode obd\n");
-  }
-
   hyundai_community_rx_checks = (addr_checks){hyundai_community_addr_checks, HYUNDAI_COMMUNITY_ADDR_CHECK_LEN};
   return &hyundai_community_rx_checks;
 }
