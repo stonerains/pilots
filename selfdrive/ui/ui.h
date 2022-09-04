@@ -100,11 +100,6 @@ typedef struct UIScene {
   // Turning Signal
   bool leftBlinker, rightBlinker;
   int blinkingrate;
-
-  // BSD
-  bool leftblindspot, rightblindspot;
-  int blindspot_blinkingrate = 120;
-  int car_valid_status_changed = 0;
   
   // Tenesi
   float currentGear;
