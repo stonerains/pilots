@@ -8,6 +8,7 @@ from selfdrive.controls.lib.drive_helpers import CONTROL_N, MPC_COST_LAT, LAT_MP
 from selfdrive.controls.lib.desire_helper import DesireHelper, AUTO_LCA_START_TIME
 import cereal.messaging as messaging
 from cereal import log
+from common.params import Params
 
 TRAJECTORY_SIZE = 33
 CAMERA_OFFSET = 0.04
@@ -78,7 +79,7 @@ class LateralPlanner:
                      heading_pts,
                      curv_rate_pts)
     # init state for next
-    # mpc.u_sol is the desired curvature rate given x0 curv state. 
+    # mpc.u_sol is the desired curvature rate given x0 curv state.
     # with x0[3] = measured_curvature, this would be the actual desired rate.
     # instead, interpolate x_sol so that x0[3] is the desired curvature for lat_control.
     self.x0[3] = interp(DT_MDL, self.t_idxs[:LAT_MPC_N + 1], self.lat_mpc.x_sol[:, 3])
