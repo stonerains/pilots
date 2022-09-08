@@ -18,7 +18,7 @@ from selfdrive.road_speed_limiter import road_speed_limiter_get_max_speed, road_
   get_road_speed_limiter
 
 SYNC_MARGIN = 3.
-CREEP_SPEED = 2.3
+CREEP_SPEED = 3.
 
 # do not modify
 MIN_SET_SPEED_KPH = V_CRUISE_MIN
@@ -357,11 +357,9 @@ class SccSmoother:
     gas_factor = ntune_scc_get("sccGasFactor")
     brake_factor = ntune_scc_get("sccBrakeFactor")
 
-    if self.e2e_long:
-      start_boost = interp(CS.out.vEgo, [0.0, 0.8 * CREEP_SPEED, 1.5 * CREEP_SPEED], [0.6, 0.6, 0.0])
-    else :
-      start_boost = interp(CS.out.vEgo, [0.0, 1.5 * CREEP_SPEED, 3.0 * CREEP_SPEED], [0.7, 0.6, 0.0])
+    boost_v = 0.3 if self.e2e_long else 0.6
 
+    start_boost = interp(CS.out.vEgo, [0.0, 1.5 * CREEP_SPEED, 3.0 * CREEP_SPEED], [boost_v + 0.05, boost_v, 0.0])
     is_accelerating = interp(accel, [0.0, 0.2], [0.0, 1.0])
     boost = start_boost * is_accelerating
     accel += boost
