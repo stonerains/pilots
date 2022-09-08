@@ -75,22 +75,24 @@ void set_safety_mode(uint16_t mode, uint16_t param) {
 
 #ifdef CANFD
 #define DEFAULT_RELAY false
+#define DEFAULT_CANMODE CAN_MODE_NORMAL
 #else
 #define DEFAULT_RELAY true
+#define DEFAULT_CANMODE CAN_MODE_OBD_CAN2
 #endif
 
   switch (mode_copy) {
     case SAFETY_SILENT:
       set_intercept_relay(DEFAULT_RELAY);
       if (current_board->has_obd) {
-        current_board->set_can_mode(CAN_MODE_NORMAL);
+        current_board->set_can_mode(DEFAULT_CANMODE);
       }
       can_silent = ALL_CAN_SILENT;
       break;
     case SAFETY_NOOUTPUT:
       set_intercept_relay(DEFAULT_RELAY);
       if (current_board->has_obd) {
-        current_board->set_can_mode(CAN_MODE_NORMAL);
+        current_board->set_can_mode(DEFAULT_CANMODE);
       }
       can_silent = ALL_CAN_LIVE;
       break;
@@ -102,7 +104,7 @@ void set_safety_mode(uint16_t mode, uint16_t param) {
         if (param == 0U) {
           current_board->set_can_mode(CAN_MODE_OBD_CAN2);
         } else {
-          current_board->set_can_mode(CAN_MODE_NORMAL);
+          current_board->set_can_mode(DEFAULT_CANMODE);
         }
       }
       can_silent = ALL_CAN_LIVE;
@@ -112,7 +114,7 @@ void set_safety_mode(uint16_t mode, uint16_t param) {
       heartbeat_counter = 0U;
       heartbeat_lost = false;
       if (current_board->has_obd) {
-        current_board->set_can_mode(CAN_MODE_NORMAL);
+        current_board->set_can_mode(DEFAULT_CANMODE);
       }
       can_silent = ALL_CAN_LIVE;
       break;
