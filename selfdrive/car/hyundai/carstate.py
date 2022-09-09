@@ -10,7 +10,6 @@ from opendbc.can.parser import CANParser
 from opendbc.can.can_define import CANDefine
 from common.conversions import Conversions as CV
 from common.params import Params
-import copy
 
 PREV_BUTTON_SAMPLES = 8
 
@@ -53,8 +52,8 @@ class CarState(CarStateBase):
     self.params = CarControllerParams(CP)
 
     # for activate HDA
-    self.hda_mfc = None
     self.has_hda = CP.hasHda
+    self.hda_mfc = None
 
     # scc smoother
     self.acc_mode = False
@@ -228,8 +227,7 @@ class CarState(CarStateBase):
     self.cruise_unavail = self.cruise_unavail_cnt > 100
 
     # for activate HDA
-    if self.has_hda:
-      self.hda_mfc = copy.copy(cp_cam.vl["LFAHDA_MFC"])
+    self.hda_mfc = copy.copy(cp_cam.vl["LFAHDA_MFC"])
 
     self.lead_distance = cp_scc.vl["SCC11"]["ACC_ObjDist"] if not self.no_radar else 0
     if self.has_scc13:
@@ -720,7 +718,7 @@ class CarState(CarStateBase):
       ]
 
       # for activate HDA
-      if CP.carFingerprint in FEATURES["has_hda"]:
+      if CP.hasHda or CP.carFingerprint in FEATURES["has_hda"]:
         signals += [
           ("HDA_USM", "LFAHDA_MFC"),
           ("HDA_Active", "LFAHDA_MFC"),
