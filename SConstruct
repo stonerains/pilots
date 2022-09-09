@@ -188,7 +188,6 @@ env = Environment(
     "-Wno-inconsistent-missing-override",
     "-Wno-c99-designator",
     "-Wno-reorder-init-list",
-    "-Wno-unqualified-std-cast-call",
     "-Wno-error=unused-but-set-variable",
   ] + cflags + ccflags,
 
