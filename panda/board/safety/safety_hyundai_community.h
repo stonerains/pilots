@@ -1,3 +1,19 @@
+const SteeringLimits HYUNDAI_COMMUNITY_STEERING_LIMITS = {
+  .max_steer = 409,
+  .max_rt_delta = 112,
+  .max_rt_interval = 250000,
+  .max_rate_up = 6,
+  .max_rate_down = 8,
+  .driver_torque_allowance = 50,
+  .driver_torque_factor = 2,
+  .type = TorqueDriverLimited,
+};
+
+const int HYUNDAI_COMMUNITY_STANDSTILL_THRSLD = 30;  // ~1kph
+
+const int HYUNDAI_COMMUNITY_MAX_ACCEL = 200;  // 1/100 m/s2
+const int HYUNDAI_COMMUNITY_MIN_ACCEL = -350; // 1/100 m/s2
+
 bool Lcan_bus1 = false;
 bool Fwd_bus1 = false;
 bool Fwd_obd = false;
@@ -50,11 +66,86 @@ AddrCheckStruct hyundai_community_addr_checks[] = {
 
 addr_checks hyundai_community_rx_checks = {hyundai_community_addr_checks, HYUNDAI_COMMUNITY_ADDR_CHECK_LEN};
 
+static uint32_t hyundai_community_get_checksum(CANPacket_t *to_push) {
+  int addr = GET_ADDR(to_push);
+
+  uint8_t chksum;
+  if (addr == 608) {
+    chksum = GET_BYTE(to_push, 7) & 0xFU;
+  } else if (addr == 902) {
+    chksum = ((GET_BYTE(to_push, 7) >> 6) << 2) | (GET_BYTE(to_push, 5) >> 6);
+  } else if (addr == 916) {
+    chksum = GET_BYTE(to_push, 6) & 0xFU;
+  } else if (addr == 1057) {
+    chksum = GET_BYTE(to_push, 7) >> 4;
+  } else {
+    chksum = 0;
+  }
+  return chksum;
+}
+
+static uint32_t hyundai_community_compute_checksum(CANPacket_t *to_push) {
+  int addr = GET_ADDR(to_push);
+
+  uint8_t chksum = 0;
+  if (addr == 902) {
+    // count the bits
+    for (int i = 0; i < 8; i++) {
+      uint8_t b = GET_BYTE(to_push, i);
+      for (int j = 0; j < 8; j++) {
+        uint8_t bit = 0;
+        // exclude checksum and counter
+        if (((i != 1) || (j < 6)) && ((i != 3) || (j < 6)) && ((i != 5) || (j < 6)) && ((i != 7) || (j < 6))) {
+          bit = (b >> (uint8_t)j) & 1U;
+        }
+        chksum += bit;
+      }
+    }
+    chksum = (chksum ^ 9U) & 15U;
+  } else {
+    // sum of nibbles
+    for (int i = 0; i < 8; i++) {
+      if ((addr == 916) && (i == 7)) {
+        continue; // exclude
+      }
+      uint8_t b = GET_BYTE(to_push, i);
+      if (((addr == 608) && (i == 7)) || ((addr == 916) && (i == 6)) || ((addr == 1057) && (i == 7))) {
+        b &= (addr == 1057) ? 0x0FU : 0xF0U; // remove checksum
+      }
+      chksum += (b % 16U) + (b / 16U);
+    }
+    chksum = (16U - (chksum %  16U)) % 16U;
+  }
+
+  return chksum;
+}
+
+static uint8_t hyundai_community_get_counter(CANPacket_t *to_push) {
+  int addr = GET_ADDR(to_push);
+
+  uint8_t cnt;
+  if (addr == 608) {
+    cnt = (GET_BYTE(to_push, 7) >> 4) & 0x3U;
+  } else if (addr == 902) {
+    cnt = ((GET_BYTE(to_push, 3) >> 6) << 2) | (GET_BYTE(to_push, 1) >> 6);
+  } else if (addr == 916) {
+    cnt = (GET_BYTE(to_push, 1) >> 5) & 0x7U;
+  } else if (addr == 1057) {
+    cnt = GET_BYTE(to_push, 7) & 0xFU;
+  } else if (addr == 1265) {
+    cnt = (GET_BYTE(to_push, 3) >> 4) & 0xFU;
+  } else {
+    cnt = 0;
+  }
+  return cnt;
+}
+
 static int hyundai_community_rx_hook(CANPacket_t *to_push) {
   int addr = GET_ADDR(to_push);
   int bus = GET_BUS(to_push);
-  bool valid = addr_safety_check(to_push, &hyundai_community_rx_checks, hyundai_get_checksum,
-                                 hyundai_compute_checksum, hyundai_get_counter);
+  bool valid = addr_safety_check(to_push, &hyundai_community_rx_checks, hyundai_community_get_checksum,
+                                 hyundai_community_compute_checksum, hyundai_community_get_counter);
+
   if (!valid){
     puts("  CAN RX invalid: "); puth(addr); puts("\n");
   }
@@ -131,7 +222,7 @@ static int hyundai_community_rx_hook(CANPacket_t *to_push) {
   // MDPS12
   if (valid) {
     if (addr == 593 && bus == MDPS_bus) {
-      int torque_driver_new = ((GET_BYTES_04(to_push) & 0x7ff) * 0.79) - 808; // scale down new driver torque signal to match previous one
+      int torque_driver_new = ((GET_BYTES_04(to_push) & 0x7ffU) * 0.79) - 808; // scale down new driver torque signal to match previous one
       // update array of samples
       update_sample(&torque_driver, torque_driver_new);
     }
@@ -172,7 +263,7 @@ static int hyundai_community_rx_hook(CANPacket_t *to_push) {
     if (addr == 902) {
       int hyundai_speed = (GET_BYTES_04(to_push) & 0x3FFFU) + ((GET_BYTES_48(to_push) >> 16) & 0x3FFFU);  // FL + RR
       hyundai_speed /= 2;
-      vehicle_moving = hyundai_speed > HYUNDAI_STANDSTILL_THRSLD;
+      vehicle_moving = hyundai_speed > HYUNDAI_COMMUNITY_STANDSTILL_THRSLD;
     }
     generic_rx_checks((addr == 832 && bus == 0)); // LKAS11
   }
@@ -199,10 +290,10 @@ static int hyundai_community_tx_hook(CANPacket_t *to_send, bool longitudinal_all
   // LKA STEER: safety check
   if (addr == 832) {
     LKAS11_op = 20;
-    int desired_torque = ((GET_BYTES_04(to_send) >> 16) & 0x7ff) - 1024;
+    int desired_torque = ((GET_BYTES_04(to_send) >> 16) & 0x7ffU) - 1024U;
     //bool steer_req = GET_BIT(to_send, 27U) != 0U;
 
-    if (steer_torque_cmd_checks(desired_torque, 1, HYUNDAI_STEERING_LIMITS)) {
+    if (steer_torque_cmd_checks(desired_torque, -1, HYUNDAI_COMMUNITY_STEERING_LIMITS)) {
       tx = 0;
     }
   }
@@ -212,7 +303,7 @@ static int hyundai_community_tx_hook(CANPacket_t *to_send, bool longitudinal_all
   // This avoids unintended engagements while still allowing resume spam
   //allow clu11 to be sent to MDPS if MDPS is not on bus0
   if (addr == 1265 && !controls_allowed && (bus != MDPS_bus && MDPS_bus == 1)) {
-    if ((GET_BYTES_04(to_send) & 0x7) != 4) {
+    if ((GET_BYTES_04(to_send) & 0x7U) != 4) {
       tx = 0;
     }
   }

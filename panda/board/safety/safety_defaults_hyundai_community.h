@@ -164,14 +164,14 @@ static int default_fwd_hook(int bus_num, CANPacket_t *to_fwd) {
         }
         New_Chksum2 %= 256;
       } else if (MDPS12_checksum) {
-        uint8_t crc = 0xFF;
+        uint8_t crc = 0xFFU;
         uint8_t poly = 0x1D;
         int i, j;
         for (i=0; i<8; i++){
           if (i!=3){ //don't include CRC byte
             crc ^= dat[i];
             for (j=0; j<8; j++) {
-              if ((crc & 0x80) != 0U) {
+              if ((crc & 0x80U) != 0U) {
                 crc = (crc << 1) ^ poly;
               } else {
                 crc <<= 1;
@@ -179,7 +179,7 @@ static int default_fwd_hook(int bus_num, CANPacket_t *to_fwd) {
             }
           }
         }
-        crc ^= 0xFF;
+        crc ^= 0xFFU;
         crc %= 256;
         New_Chksum2 = crc;
       }
