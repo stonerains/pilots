@@ -332,15 +332,14 @@ void NvgWindow::drawLaneLines(QPainter &painter, const UIState *s) {
       bg.setColorAt(0.0, QColor::fromHslF(start_hue / 360., 0.97, 0.56, 0.4));
       bg.setColorAt(0.5, QColor::fromHslF(end_hue / 360., 1.0, 0.68, 0.35));
       bg.setColorAt(1.0, QColor::fromHslF(end_hue / 360., 1.0, 0.68, 0.0));
-    } else {
+    } else if (scene.end_to_end) {
       const auto &orientation = (*s->sm)["modelV2"].getModelV2().getOrientation();
       float orientation_future = 0;
       if (orientation.getZ().size() > 16) {
         orientation_future = std::abs(orientation.getZ()[16]);  // 2.5 seconds
       }
-      start_hue = 148;
       // straight: 112, in turns: 70
-      end_hue = fmax(70, 112 - (orientation_future * 420));
+      float end_hue = fmax(70, 112 - (orientation_future * 420));
     }
     // FIXME: painter.drawPolygon can be slow if hue is not rounded
     end_hue = int(end_hue * 100 + 0.5) / 100;

@@ -68,7 +68,8 @@ class LongitudinalPlanner:
     self.use_cluster_speed = Params().get_bool('UseClusterSpeed')
 
   def read_param(self):
-    self.mpc.mode = 'blended' if self.params.get_bool('EndToEndLong') else 'acc'
+    e2e = self.params.get_bool('EndToEndLong') and self.CP.openpilotLongitudinalControl
+    self.mpc.mode = 'blended' if e2e else 'acc'
 
   def parse_model(self, model_msg):
     if (len(model_msg.position.x) == 33 and
@@ -89,7 +90,7 @@ class LongitudinalPlanner:
     return x, v, a, j
 
   def update(self, sm):
-    if self.param_read_counter % 50 == 0:
+    if self.param_read_counter % 100 == 0:
       self.read_param()
     self.param_read_counter += 1
 
