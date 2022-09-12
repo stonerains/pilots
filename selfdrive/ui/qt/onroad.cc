@@ -338,8 +338,9 @@ void NvgWindow::drawLaneLines(QPainter &painter, const UIState *s) {
       if (orientation.getZ().size() > 16) {
         orientation_future = std::abs(orientation.getZ()[16]);  // 2.5 seconds
       }
+      start_hue = 148;
       // straight: 112, in turns: 70
-      float end_hue = fmax(70, 112 - (orientation_future * 420));
+      end_hue = fmax(70, 112 - (orientation_future * 420));
     }
     // FIXME: painter.drawPolygon can be slow if hue is not rounded
     end_hue = int(end_hue * 100 + 0.5) / 100;
