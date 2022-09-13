@@ -57,7 +57,7 @@ class CarInterface(CarInterfaceBase):
     ret.maxSteeringAngleDeg = 1080.
 
     ret.steerFaultMaxAngle = 85
-    ret.steerFaultMaxFrames = 90
+    ret.steerFaultMaxFrames = 39
 
     ret.disableLateralLiveTuning = False
 
