@@ -327,7 +327,7 @@
         <translation>변경</translation>
     </message>
     <message>
-        <location line="+4"/>
+        <location line="+3"/>
         <source>Select a language</source>
         <translation>사용할 언어를 선택하세요</translation>
     </message>
@@ -536,7 +536,7 @@ prime subscription. Sign up now: https://connect.comma.ai</source>
 지금 가입하세요: https://connect.comma.ai</translation>
     </message>
     <message>
-        <location line="+57"/>
+        <location line="+58"/>
         <source>No home
 location set</source>
         <translation>집이 설정되지 않았습니다
@@ -550,7 +550,7 @@ location set</source>
 위치를 설정하세요</translation>
     </message>
     <message>
-        <location line="+113"/>
+        <location line="+120"/>
         <source>no recent destinations</source>
         <translation>최근 목적지가 없습니다</translation>
     </message>
@@ -789,9 +789,9 @@ location set</source>
 <context>
     <name>SelectCar</name>
     <message>
-        <location filename="../qt/offroad/settings.cc" line="-50"/>
-        <source>Back</source>
-        <translation>뒤로</translation>
+        <location filename="../qt/offroad/settings.cc" line="+22"/>
+        <source>×</source>
+        <translation>×</translation>
     </message>
     <message>
         <location line="+12"/>
@@ -931,72 +931,47 @@ location set</source>
 <context>
     <name>SoftwarePanel</name>
     <message>
-        <location filename="../qt/offroad/settings.cc" line="-154"/>
-        <source>Git Branch</source>
-        <translation>Git 브랜치</translation>
-    </message>
-    <message>
-        <location line="+1"/>
-        <source>Git Commit</source>
-        <translation>Git 커밋</translation>
-    </message>
-    <message>
-        <location line="+1"/>
-        <source>OS Version</source>
-        <translation>OS 버전</translation>
-    </message>
-    <message>
-        <location line="+1"/>
-        <source>Version</source>
-        <translation>버전</translation>
-    </message>
-    <message>
-        <location line="+1"/>
-        <source>Last Update Check</source>
-        <translation>마지막 업데이트 확인</translation>
-    </message>
-    <message>
-        <location line="+0"/>
-        <source>The last time openpilot successfully checked for an update. The updater only runs while the car is off.</source>
-        <translation>마지막으로 openpilot이 업데이트를 성공적으로 확인했습니다. 업데이트는 차량 시동이 꺼져 있는 동안에만 실행됩니다.</translation>
-    </message>
-    <message>
-        <location line="+1"/>
-        <source>Check for Update</source>
-        <translation>업데이트 확인</translation>
+        <location filename="../qt/offroad/software_settings.cc" line="+24"/>
+        <source>Updates are only downloaded while the car is off.</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <location line="+5"/>
-        <source>CHECKING</source>
-        <translation>확인중</translation>
+        <source>Current Version</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
-        <location line="+7"/>
-        <source>Switch Branch</source>
-        <translation>브랜치 변경</translation>
+        <location line="+4"/>
+        <source>Download</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
-        <location line="+0"/>
-        <source>ENTER</source>
-        <translation>입력</translation>
-    </message>
-    <message>
-        <location line="+0"/>
-        <location line="+2"/>
-        <source>The new branch will be pulled the next time the updater runs.</source>
-        <translation>다음 업데이터가 실행될 때 해당 브랜치를 가져옵니다.</translation>
+        <location line="+12"/>
+        <source>Install Update</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <location line="+0"/>
-        <source>Enter branch name</source>
-        <translation>브랜치명을 입력하세요</translation>
+        <source>INSTALL</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Uninstall </source>
-        <translation type="vanished">제거</translation>
+        <location line="+8"/>
+        <source>Target Branch</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
-        <location line="+11"/>
+        <location line="+0"/>
+        <source>SELECT</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+13"/>
+        <source>Select a branch</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+12"/>
         <source>UNINSTALL</source>
         <translation>제거</translation>
     </message>
@@ -1011,13 +986,8 @@ location set</source>
         <translation>제거하시겠습니까?</translation>
     </message>
     <message>
-        <location line="+17"/>
-        <source>failed to fetch update</source>
-        <translation>업데이트 패치에 실패하였습니다</translation>
-    </message>
-    <message>
-        <location line="+1"/>
-        <location line="+21"/>
+        <location line="-47"/>
+        <location line="+3"/>
         <source>CHECK</source>
         <translation>확인</translation>
     </message>
@@ -1037,7 +1007,7 @@ location set</source>
 콤마 직원은 GitHub 사용자 이름을 추가하도록 요청하지 않습니다.</translation>
     </message>
     <message>
-        <location line="+6"/>
+        <location line="+2"/>
         <location line="+24"/>
         <source>ADD</source>
         <translation>추가</translation>
@@ -1107,7 +1077,7 @@ location set</source>
 <context>
     <name>TogglesPanel</name>
     <message>
-        <location filename="../qt/offroad/settings.cc" line="-380"/>
+        <location filename="../qt/offroad/settings.cc" line="-303"/>
         <source>Enable openpilot</source>
         <translation>오픈파일럿 사용</translation>
     </message>
@@ -1227,12 +1197,11 @@ location set</source>
     <name>WifiUI</name>
     <message>
         <location filename="../qt/offroad/networking.cc" line="+113"/>
-        <location line="+53"/>
         <source>Scanning for networks...</source>
         <translation>네트워크를 찾는 중</translation>
     </message>
     <message>
-        <location line="+26"/>
+        <location line="+80"/>
         <source>CONNECTING...</source>
         <translation>접속중...</translation>
     </message>
