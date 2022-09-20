@@ -3,7 +3,6 @@ import os
 import time
 from abc import abstractmethod, ABC
 from typing import Any, Dict, Optional, Tuple, List, Callable
-from common.numpy_fast import interp
 
 from cereal import car
 from common.basedir import BASEDIR
@@ -12,7 +11,7 @@ from common.kalman.simple_kalman import KF1D
 from common.numpy_fast import interp
 from common.realtime import DT_CTRL
 from selfdrive.car import apply_hysteresis, create_button_enable_events, gen_empty_fingerprint
-from selfdrive.controls.lib.drive_helpers import V_CRUISE_MAX
+from selfdrive.controls.lib.drive_helpers import V_CRUISE_MAX, apply_deadzone
 from selfdrive.controls.lib.events import Events
 from selfdrive.controls.lib.vehicle_model import VehicleModel
 
@@ -126,7 +125,10 @@ class CarInterfaceBase(ABC):
     ret = car.CarParams.new_message()
     ret.carFingerprint = candidate
 
-    ret.maxLateralAccel = get_torque_params(candidate)['MAX_LAT_ACCEL_MEASURED']
+    # Car docs fields
+    #ret.maxLateralAccel = get_torque_params(candidate)['MAX_LAT_ACCEL_MEASURED']
+    ret.autoResumeSng = True  # describes whether car can resume from a stop automatically
+
     # standard ALC params
     ret.steerControlType = car.CarParams.SteerControlType.torque
     ret.minSteerSpeed = 0.
