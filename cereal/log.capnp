@@ -628,6 +628,9 @@ struct ControlsState @0x97ff69c53601abf1 {
   sccStockCamAct @74 :Float32;
   sccStockCamStatus @75 :Float32;
 
+  latAccelFactor @76 :Float32;
+  latAccelOffset @77 :Float32;
+  friction @78 :Float32;
 
   enum OpenpilotState @0xdbe58b96d2d1ac61 {
     disabled @0;

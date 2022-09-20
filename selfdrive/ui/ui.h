@@ -89,7 +89,7 @@ typedef struct UIScene {
   bool calibration_valid = false;
   mat3 view_from_calib = DEFAULT_CALIBRATION;
   cereal::PandaState::PandaType pandaType;
-
+  cereal::ControlsState::Reader controls_state;
   // ui add
   bool steeringPressed, engaged, override;
 

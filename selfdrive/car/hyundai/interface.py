@@ -15,16 +15,6 @@ GearShifter = car.CarState.GearShifter
 EventName = car.CarEvent.EventName
 ButtonType = car.CarState.ButtonEvent.Type
 
-def torque_tune(tune, max_lat_accel=2.5, friction=0.01, kd=0.0, steering_angle_deadzone_deg=0.0):
-  tune.init('torque')
-  tune.torque.useSteeringAngle = True
-  tune.torque.kp = 1.0 / max_lat_accel
-  tune.torque.kf = 1.0 / max_lat_accel
-  tune.torque.ki = 0.1 / max_lat_accel
-  tune.torque.friction = friction
-  tune.torque.steeringAngleDeadzoneDeg = steering_angle_deadzone_deg
-  tune.torque.kd = kd
-
 class CarInterface(CarInterfaceBase):
   def __init__(self, CP, CarController, CarState):
     super().__init__(CP, CarController, CarState)
@@ -84,10 +74,11 @@ class CarInterface(CarInterfaceBase):
       ret.lateralTuning.indi.actuatorEffectivenessBP = [0.]
       ret.lateralTuning.indi.actuatorEffectivenessV = [1.8]
     else:
-      torque_tune(ret.lateralTuning, 2.5, 0.01)
+      ret.lateralTuning.init('torque')
+
 
     ret.steerRatio = 16.5
-    ret.steerActuatorDelay = 0.2
+    ret.steerActuatorDelay = 0.1  # Default delay
     ret.steerLimitTimer = 3.0
 
     # longitudinal
@@ -126,9 +117,9 @@ class CarInterface(CarInterfaceBase):
       # thanks to 파파
       ret.steerRatio = 16.5
       ret.steerActuatorDelay = 0.1
-
+	  
       if ret.lateralTuning.which() == 'torque':
-        torque_tune(ret.lateralTuning, 2.5, 0.01)
+        CarInterfaceBase.configure_torque_tune(candidate, ret.lateralTuning)
 
     elif candidate == CAR.GENESIS_EQ900_L:
       ret.mass = 2290
@@ -201,11 +192,6 @@ class CarInterface(CarInterfaceBase):
       ret.steerRatio = 13.27
       tire_stiffness_factor = 0.7
       ret.centerToFront = ret.wheelbase * 0.4
-
-      if ret.lateralTuning.which() == 'torque':
-        # selfdrive/car/torque_data/params.yaml, https://codebeautify.org/jsonviewer/y220b1623
-        torque_tune(ret.lateralTuning, 4.493208192966529, 0.0863709736632968)
-
     elif candidate in [CAR.IONIQ, CAR.IONIQ_EV_LTD, CAR.IONIQ_EV_2020, CAR.IONIQ_PHEV]:
       ret.mass = 1490. + STD_CARGO_KG
       ret.wheelbase = 2.7
@@ -249,9 +235,6 @@ class CarInterface(CarInterfaceBase):
       ret.wheelbase = 2.756
       ret.steerRatio = 16.
       tire_stiffness_factor = 0.385
-
-      if ret.lateralTuning.which() == 'torque':
-        torque_tune(ret.lateralTuning, 2.5, 0.0)
 
     # kia
     elif candidate == CAR.SORENTO:
@@ -304,9 +287,6 @@ class CarInterface(CarInterfaceBase):
       ret.steerRatio = 16.
       tire_stiffness_factor = 0.65
 
-      if ret.lateralTuning.which() == 'torque':
-        torque_tune(ret.lateralTuning, 3.5, 0.01)
-
     elif candidate == CAR.MOHAVE:
       ret.mass = 2285. + STD_CARGO_KG
       ret.wheelbase = 2.895
@@ -319,9 +299,6 @@ class CarInterface(CarInterfaceBase):
       tire_stiffness_factor = 0.7
       ret.centerToFront = ret.wheelbase * 0.4
 
-      if ret.lateralTuning.which() == 'torque':
-        torque_tune(ret.lateralTuning, 2.9, 0.01)
-
     elif candidate == CAR.K9:
       ret.mass = 2075. + STD_CARGO_KG
       ret.wheelbase = 3.15
@@ -329,8 +306,6 @@ class CarInterface(CarInterfaceBase):
       tire_stiffness_factor = 0.8
       ret.centerToFront = ret.wheelbase * 0.4
 
-      if ret.lateralTuning.which() == 'torque':
-        torque_tune(ret.lateralTuning, 2.3, 0.01)
 
     ret.radarTimeStep = 0.05
 

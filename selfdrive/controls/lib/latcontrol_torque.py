@@ -4,10 +4,7 @@ from cereal import log
 from common.numpy_fast import interp
 from selfdrive.controls.lib.latcontrol import LatControl, MIN_STEER_SPEED
 from selfdrive.controls.lib.pid import PIDController
-from selfdrive.controls.lib.drive_helpers import apply_deadzone
 from selfdrive.controls.lib.vehicle_model import ACCELERATION_DUE_TO_GRAVITY
-# from selfdrive.ntune import nTune
-# from selfdrive.controls.lib.latcontrol_pid import ERROR_RATE_FRAME
 
 # At higher speeds (25+mph) we can assume:
 # Lateral acceleration achieved by a specific car correlates to
@@ -19,9 +16,6 @@ from selfdrive.controls.lib.vehicle_model import ACCELERATION_DUE_TO_GRAVITY
 # use a LOW_SPEED_FACTOR in the error. Additionally, there is
 # friction in the steering wheel that needs to be overcome to
 # move it at all, this is compensated for too.
-
-
-FRICTION_THRESHOLD = 0.2
 
 
 class LatControlTorque(LatControl):
@@ -40,7 +34,6 @@ class LatControlTorque(LatControl):
     self.torque_params.friction = friction
 
   def update(self, active, CS, VM, params, last_actuators, steer_limited, desired_curvature, desired_curvature_rate, llk):
-    self.tune.check()
     pid_log = log.ControlsState.LateralTorqueState.new_message()
 
     if CS.vEgo < MIN_STEER_SPEED or not active:
@@ -58,7 +51,7 @@ class LatControlTorque(LatControl):
       desired_lateral_accel = desired_curvature * CS.vEgo ** 2
 
       # desired rate is the desired rate of change in the setpoint, not the absolute desired curvature
-      #desired_lateral_jerk = desired_curvature_rate * CS.vEgo ** 2
+      # desired_lateral_jerk = desired_curvature_rate * CS.vEgo ** 2
       actual_lateral_accel = actual_curvature * CS.vEgo ** 2
       lateral_accel_deadzone = curvature_deadzone * CS.vEgo ** 2
 
@@ -71,7 +64,7 @@ class LatControlTorque(LatControl):
       ff = self.torque_from_lateral_accel(gravity_adjusted_lateral_accel, self.torque_params, error, lateral_accel_deadzone, friction_compensation=True)
 
       freeze_integrator = steer_limited or CS.steeringPressed or CS.vEgo < 5
-      output_torque = self.pid.update(error, error_rate,
+      output_torque = self.pid.update(pid_log.error,
                                       feedforward=ff,
                                       speed=CS.vEgo,
                                       freeze_integrator=freeze_integrator)
@@ -82,9 +75,9 @@ class LatControlTorque(LatControl):
       pid_log.d = self.pid.d
       pid_log.f = self.pid.f
       pid_log.output = -output_torque
-      pid_log.saturated = self._check_saturation(self.steer_max - abs(output_torque) < 1e-3, CS, steer_limited)
       pid_log.actualLateralAccel = actual_lateral_accel
       pid_log.desiredLateralAccel = desired_lateral_accel
+      pid_log.saturated = self._check_saturation(self.steer_max - abs(output_torque) < 1e-3, CS, steer_limited)
 
     # TODO left is positive in this convention
     return -output_torque, 0.0, pid_log
