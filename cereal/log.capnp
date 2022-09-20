@@ -227,9 +227,9 @@ struct SensorEventData {
     fiber @2;
     velodyne @3;  # Velodyne IMU
     bno055 @4;    # Bosch accelerometer
-    lsm6ds3 @5;   # accelerometer (c2)
-    bmp280 @6;    # barometer (c2)
-    mmc3416x @7;  # magnetometer (c2)
+    lsm6ds3 @5;   # includes LSM6DS3 and LSM6DS3TR, TR = tape reel
+    bmp280 @6;    # barometer
+    mmc3416x @7;  # magnetometer
     bmx055 @8;
     rpr0521 @9;
     lsm6ds3trc @10;
@@ -1781,6 +1781,22 @@ struct LiveParametersData {
   roll @14 :Float32;
 }
 
+struct LiveTorqueParametersData {
+  liveValid @0 :Bool;
+  latAccelFactorRaw @1 :Float32;
+  latAccelOffsetRaw @2 :Float32;
+  frictionCoefficientRaw @3 :Float32;
+  latAccelFactorFiltered @4 :Float32;
+  latAccelOffsetFiltered @5 :Float32;
+  frictionCoefficientFiltered @6 :Float32;
+  totalBucketPoints @7 :Float32;
+  decay @8 :Float32;
+  maxResets @9 :Float32;
+  points @10 :List(List(Float32));
+  version @11 :Int32;
+  useParams @12 :Bool;
+}
+
 struct LiveMapDataDEPRECATED {
   speedLimitValid @0 :Bool;
   speedLimit @1 :Float32;
@@ -1949,6 +1965,7 @@ struct Event {
     gpsLocation @21 :GpsLocationData;
     gnssMeasurements @91 :GnssMeasurements;
     liveParameters @61 :LiveParametersData;
+    liveTorqueParameters @94 :LiveTorqueParametersData;
     cameraOdometry @63 :CameraOdometry;
     thumbnail @66: Thumbnail;
     carEvents @68: List(Car.CarEvent);
@@ -1986,7 +2003,7 @@ struct Event {
     userFlag @93 :UserFlag;
     
     # neokii
-    roadLimitSpeed @94 :RoadLimitSpeed;
+    roadLimitSpeed @95 :RoadLimitSpeed;
 
     # *********** debug ***********
     testJoystick @52 :Joystick;
