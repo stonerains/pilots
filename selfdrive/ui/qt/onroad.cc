@@ -538,10 +538,13 @@ void NvgWindow::drawHud(QPainter &p, const cereal::ModelDataV2::Reader &model) {
   bool has_hda = car_params.getHasHda();  
 
   QString infoText;
-  infoText.sprintf("%s TQ(%.2f/%.2f) AO(%.2f/%.2f) SR(%.2f) SAD(%.2f) BUS(MDPS %d, SCC %d, HDA %d) SCC(%.2f/%.2f/%.2f)",
+  infoText.sprintf("%s LTP(%.2f/%.2f/%s) LTP_RAW(%.2f/%.2f) AO(%.2f/%.2f) SR(%.2f) SAD(%.2f) BUS(MDPS %d, SCC %d, HDA %d) SCC(%.2f/%.2f/%.2f)",
                       s->lat_control.c_str(),
                       live_torque_params.getLatAccelFactorFiltered(),
-                      live_torque_params.getLatAccelOffsetFiltered(),
+                      live_torque_params.getFrictionCoefficientFiltered(),
+                      live_torque_params.getLiveValid() ? "O" : "X",
+                      live_torque_params.getLatAccelFactorRaw(),
+                      live_torque_params.getFrictionCoefficientRaw(),
                       live_params.getAngleOffsetDeg(),
                       live_params.getAngleOffsetAverageDeg(),
                       controls_state.getSteerRatio(),
