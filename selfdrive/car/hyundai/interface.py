@@ -132,7 +132,7 @@ class CarInterface(CarInterfaceBase):
       ret.steerActuatorDelay = 0.1
 	  
       if ret.lateralTuning.which() == 'torque':
-        torque_tune(ret.lateralTuning, 3.0, 0.1)
+        torque_tune(ret.lateralTuning, 2.3, 0.1)
 
     elif candidate == CAR.GENESIS_EQ900_L:
       ret.mass = 2290
