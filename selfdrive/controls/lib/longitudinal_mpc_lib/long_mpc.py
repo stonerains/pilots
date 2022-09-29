@@ -417,7 +417,6 @@ class LongitudinalMpc:
         self.source = 'lead1'
 
 
-
   def update_with_xva(self, x, v, a):
     self.params[:,0] = -10.
     self.params[:,1] = 10.
