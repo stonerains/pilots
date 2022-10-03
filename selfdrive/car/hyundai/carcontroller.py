@@ -110,6 +110,7 @@ class CarController:
       apply_steer = 0
 
     self.apply_steer_last = apply_steer
+    apply_steer = int(round(float(apply_steer)))
 
     sys_warning, sys_state, left_lane_warning, right_lane_warning = process_hud_alert(CC.enabled, self.CP.carFingerprint, hud_control)
 
@@ -301,6 +302,7 @@ class CarController:
       apply_steer = 0
 
     self.apply_steer_last = apply_steer
+    apply_steer = int(round(float(apply_steer)))
 
     can_sends = []
 
