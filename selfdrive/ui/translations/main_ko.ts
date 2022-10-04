@@ -142,17 +142,14 @@
         <translation>디버그 메세지 보이기</translation>
     </message>
     <message>
-        <location filename="../qt/offroad/settings.cc" line="692"/>
         <source>Show Gear UI</source>
         <translation>기어 단수 보이기</translation>
     </message>
     <message>
-        <location filename="../qt/offroad/settings.cc" line="698"/>
         <source>Show EngRPM UI</source>
         <translation>엔진 RPM 보이기</translation>
     </message>
     <message>
-        <location filename="../qt/offroad/settings.cc" line="704"/>
         <source>Show Turnsignal UI</source>
         <translation>방향지시신호 보이기</translation>
     </message>
