@@ -223,7 +223,7 @@ class CarState(CarStateBase):
     self.cruise_unavail = self.cruise_unavail_cnt > 100
 
     # for activate HDA
-    self.hda_mfc = copy.copy(cp_cam.vl["LFAHDA_MFC"])
+    self.hda_mfc = cp_cam.vl["LFAHDA_MFC"]
 
     self.lead_distance = cp_scc.vl["SCC11"]["ACC_ObjDist"] if not self.no_radar else 0
     if self.has_scc13:
