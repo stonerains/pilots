@@ -382,7 +382,7 @@ class SccSmoother:
 
     boost_v = 0.2 if self.e2e_long else 0.5
 
-    start_boost = interp(CS.out.vEgo, [1.5 * CREEP_SPEED, 3.0 * CREEP_SPEED], [boost_v + 0.05, boost_v, 0.0])
+    start_boost = interp(CS.out.vEgo, [2 * CREEP_SPEED, 3.5 * CREEP_SPEED], [boost_v + 0.05, boost_v, 0.0])
     is_accelerating = interp(accel, [0.0, 0.2], [0.0, 1.0])
     boost = start_boost * is_accelerating
     accel += boost
