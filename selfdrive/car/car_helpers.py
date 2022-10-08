@@ -80,7 +80,7 @@ def fingerprint(logcan, sendcan):
   ecu_rx_addrs = set()
 
   if not skip_fw_query:
-    # Vin query only reliably works through OBDII
+    # Vin query only reliably works thorugh OBDII
     bus = 1
 
     cached_params = Params().get("CarParamsCache")
