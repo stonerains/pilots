@@ -669,6 +669,7 @@ struct CarParams {
     hud @11; # heads up display
     combinationMeter @12; # instrument cluster
     electricBrakeBooster @15;
+    shiftByWire @16;
     adas @19;
 
     # Toyota only
@@ -678,10 +679,12 @@ struct CarParams {
     # Honda only
     vsa @13; # Vehicle Stability Assist
     programmedFuelInjection @14;
-    shiftByWire @16;
 
     # Chrysler only
     hcp @18;  # Hybrid Control Processor
+
+    # Hyundai only
+    vcu @20;  # Vehicle (Motor) Control Unit
 
     debug @17;
   }
