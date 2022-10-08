@@ -791,7 +791,6 @@ class Controls:
 
     # Curvature & Steering angle
     params = self.sm['liveParameters']
-    torque_params = self.sm['liveTorqueParameters']
 
     steer_angle_without_offset = math.radians(CS.steeringAngleDeg - params.angleOffsetDeg)
     curvature = -self.VM.calc_curvature(steer_angle_without_offset, CS.vEgo, params.roll)
@@ -845,10 +844,6 @@ class Controls:
     controlsState.sccGasFactor = ntune_scc_get('sccGasFactor')
     controlsState.sccBrakeFactor = ntune_scc_get('sccBrakeFactor')
     controlsState.sccCurvatureFactor = ntune_scc_get('sccCurvatureFactor')
-
-    controlsState.latAccelFactor = torque_params.latAccelFactorFiltered
-    controlsState.latAccelOffset = torque_params.latAccelOffsetFiltered
-    controlsState.friction = torque_params.frictionCoefficientFiltered
 
     lat_tuning = self.CP.lateralTuning.which()
     if self.joystick_mode:

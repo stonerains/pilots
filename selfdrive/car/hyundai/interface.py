@@ -35,8 +35,8 @@ class CarInterface(CarInterfaceBase):
 
     v_current_kph = current_speed * CV.MS_TO_KPH
 
-    gas_max_bp = [0., 10., 20., 30., 50., 70., 100, 130.]
-    gas_max_v = [1.2, 1.05, .75, .7, .65, .4, .23, .12]
+    gas_max_bp = [0., 10., 30., 50., 70., 100, 130.]
+    gas_max_v = [1.3, 1.1, .7, .65, .45, .25, .15]
 
     return CarControllerParams.ACCEL_MIN, interp(v_current_kph, gas_max_bp, gas_max_v)
 
@@ -103,9 +103,9 @@ class CarInterface(CarInterfaceBase):
     ret.longitudinalActuatorDelayUpperBound = 0.3
 
     ret.stopAccel = -2.0
-    ret.stoppingDecelRate = 0.15  # brake_travel/s while trying to stop
+    ret.stoppingDecelRate = 0.2  # brake_travel/s while trying to stop
     ret.vEgoStopping = 0.5
-    ret.vEgoStarting = 0.3
+    ret.vEgoStarting = 0.5
 
     # genesis
     if candidate == CAR.GENESIS:
@@ -124,13 +124,11 @@ class CarInterface(CarInterfaceBase):
     elif candidate == CAR.GENESIS_EQ900:
       ret.mass = 2200. + STD_CARGO_KG
       ret.wheelbase = 3.3
+      ret.steerRatio = 16.5
+      ret.steerActuatorDelay = 0.05
       ret.centerToFront = ret.wheelbase * 0.4
-      tire_stiffness_factor = 0.8
 
       # thanks to 파파
-      ret.steerRatio = 16.5
-      ret.steerActuatorDelay = 0.1
-	  
       if ret.lateralTuning.which() == 'torque':
         torque_tune(ret.lateralTuning, 2.3, 0.01)
 

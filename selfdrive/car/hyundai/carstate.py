@@ -47,7 +47,6 @@ class CarState(CarStateBase):
     self.cruise_unavail_cnt = 0
 
     self.apply_steer = 0.
-    self.brake_error = False
     self.buttons_counter = 0
 
     self.params = CarControllerParams(CP)
