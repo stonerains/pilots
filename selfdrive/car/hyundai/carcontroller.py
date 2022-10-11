@@ -80,8 +80,9 @@ class CarController:
 
     self.angle_limit_counter = 0
 
-    self.steer_fault_max_angle = CP.steerFaultMaxAngle
-    self.steer_fault_max_frames = CP.steerFaultMaxFrames
+    self.max_angle = CP.maxAngle
+    self.max_angle_frames = CP.maxAngleFrames
+    self.max_angle_consecutive_frames = CP.maxAngleConsecutiveFrames
 
   def update(self, CC, CS, controls):
     if self.can_fd:
@@ -141,22 +142,24 @@ class CarController:
 
     cut_steer_temp = False
 
-    if self.steer_fault_max_angle > 0:
-      if lkas_active and abs(CS.out.steeringAngleDeg) >= self.steer_fault_max_angle:
+    if self.max_angle > 0:
+      # Count up to ANGLE_FAULT_MAX_FRAMES, at which point we need to cut torque to avoid a steering fault
+      if lkas_active and abs(CS.out.steeringAngleDeg) >= self.max_angle:
         self.angle_limit_counter += 1
       else:
         self.angle_limit_counter = 0
 
-      # stop requesting torque to avoid 90 degree fault and hold torque with induced temporary fault
-      cut_steer_temp = False
-      if self.angle_limit_counter > self.steer_fault_max_frames:
-        cut_steer_temp = True
+      # Cut steer actuation bit for two frames and hold torque with induced temporary fault
+      torque_fault = lkas_active and self.angle_limit_counter > self.max_angle_frames
+      lat_active = CC.latActive and not torque_fault
+
+      if self.angle_limit_counter >= self.max_angle_frames + self.max_angle_consecutive_frames:
         self.angle_limit_counter = 0
 
     can_sends = []
-    can_sends.append(hyundaican.create_lkas11(self.packer, self.frame, self.CP.carFingerprint, apply_steer, lkas_active,
+    can_sends.append(hyundaican.create_lkas11(self.packer, self.frame, self.CP.carFingerprint, apply_steer, lat_active,
                                    CS.lkas11, sys_warning, sys_state, CC.enabled, hud_control.leftLaneVisible, hud_control.rightLaneVisible,
-                                   left_lane_warning, right_lane_warning, 0, self.ldws_opt, cut_steer_temp))
+                                   left_lane_warning, right_lane_warning, 0, self.ldws_opt, torque_fault))
 
     if CS.mdps_bus or CS.scc_bus == 1:  # send lkas11 bus 1 if mdps or scc is on bus 1
       can_sends.append(hyundaican.create_lkas11(self.packer, self.frame, self.CP.carFingerprint, apply_steer, lkas_active,
