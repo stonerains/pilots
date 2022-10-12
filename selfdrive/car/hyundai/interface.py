@@ -65,14 +65,7 @@ class CarInterface(CarInterfaceBase):
       ret.safetyConfigs = [get_safety_config(car.CarParams.SafetyModel.hyundaiCommunity, 0)]
 
     tire_stiffness_factor = 1.
-    ret.maxSteeringAngleDeg = 1080.
-
-    # EPS faults if you apply torque while the steering angle is above 90 degrees for more than 1 second
-    # All slightly below EPS thresholds to avoid fault
-    ret.maxAngle = 85 # EPS max is 90
-    ret.maxAngleFrames = 89 # EPS counter is 95
-    ret.maxAngleConsecutiveFrames = 2
-
+    ret.maxSteeringAngleDeg = 1000.
     ret.disableLateralLiveTuning = False
 
     # lateral
