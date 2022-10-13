@@ -36,7 +36,7 @@ class CarInterface(CarInterfaceBase):
     v_current_kph = current_speed * CV.MS_TO_KPH
 
     gas_max_bp = [0., 10., 30., 50., 70., 100, 130.]
-    gas_max_v = [1.3, 1.1, .7, .65, .45, .25, .15]
+    gas_max_v = [1.25, 1.12, .68, .63, .45, .25, .15]
 
     return CarControllerParams.ACCEL_MIN, interp(v_current_kph, gas_max_bp, gas_max_v)
 
@@ -126,7 +126,7 @@ class CarInterface(CarInterfaceBase):
 
       # thanks to 파파
       if ret.lateralTuning.which() == 'torque':
-        torque_tune(ret.lateralTuning, 2.3, 0.01)
+        torque_tune(ret.lateralTuning, 2.0, 0.01)
 
     elif candidate == CAR.GENESIS_EQ900_L:
       ret.mass = 2290
