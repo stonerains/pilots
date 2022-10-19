@@ -20,7 +20,8 @@ from selfdrive.controls.lib.latcontrol_pid import ERROR_RATE_FRAME
 # friction in the steering wheel that needs to be overcome to
 # move it at all, this is compensated for too.
 
-LOW_SPEED_FACTOR = 100
+LOW_SPEED_FACTOR = 200
+
 
 class LatControlTorque(LatControl):
   def __init__(self, CP, CI):
