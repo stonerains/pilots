@@ -5,7 +5,7 @@ from selfdrive.ntune import ntune_common_get
 from system.swaglog import cloudlog
 from selfdrive.controls.lib.lateral_mpc_lib.lat_mpc import LateralMpc
 from selfdrive.controls.lib.lateral_mpc_lib.lat_mpc import N as LAT_MPC_N
-from selfdrive.controls.lib.drive_helpers import CONTROL_N
+from selfdrive.controls.lib.drive_helpers import CONTROL_N, MIN_SPEED
 from selfdrive.controls.lib.desire_helper import DesireHelper, AUTO_LCA_START_TIME
 import cereal.messaging as messaging
 from cereal import log
@@ -24,7 +24,6 @@ LATERAL_JERK_COST = 0.05
 # TODO this cost should be lowered when low
 # speed lateral control is stable on all cars
 STEERING_RATE_COST = 800.0
-MIN_SPEED = 1.5
 
 
 class LateralPlanner:
