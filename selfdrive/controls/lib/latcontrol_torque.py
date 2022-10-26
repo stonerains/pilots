@@ -20,7 +20,7 @@ from selfdrive.controls.lib.latcontrol_pid import ERROR_RATE_FRAME
 # friction in the steering wheel that needs to be overcome to
 # move it at all, this is compensated for too.
 
-LOW_SPEED_FACTOR = 200
+# LOW_SPEED_FACTOR = 200
 
 
 class LatControlTorque(LatControl):
@@ -66,6 +66,7 @@ class LatControlTorque(LatControl):
       actual_lateral_accel = actual_curvature * CS.vEgo ** 2
       lateral_accel_deadzone = curvature_deadzone * CS.vEgo ** 2
 
+      LOW_SPEED_FACTOR = interp(CS.vEgo, [0, 35], [400, 50])
       setpoint = desired_lateral_accel + LOW_SPEED_FACTOR * desired_curvature
       measurement = actual_lateral_accel + LOW_SPEED_FACTOR * actual_curvature
       error = setpoint - measurement
