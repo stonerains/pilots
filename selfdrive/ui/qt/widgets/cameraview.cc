@@ -96,8 +96,8 @@ mat4 get_fit_view_transform(float widget_aspect_ratio, float frame_aspect_ratio)
 CameraViewWidget::CameraViewWidget(std::string stream_name, VisionStreamType type, bool zoom, QWidget* parent) :
                                    stream_name(stream_name), stream_type(type), zoomed_view(zoom), QOpenGLWidget(parent) {
   setAttribute(Qt::WA_OpaquePaintEvent);
-  connect(this, &CameraViewWidget::vipcThreadConnected, this, &CameraViewWidget::vipcConnected, Qt::BlockingQueuedConnection);
-  connect(this, &CameraViewWidget::vipcThreadFrameReceived, this, &CameraViewWidget::vipcFrameReceived);
+  QObject::connect(this, &CameraViewWidget::vipcThreadConnected, this, &CameraViewWidget::vipcConnected, Qt::BlockingQueuedConnection);
+  QObject::connect(this, &CameraViewWidget::vipcThreadFrameReceived, this, &CameraViewWidget::vipcFrameReceived, Qt::QueuedConnection);
 }
 
 CameraViewWidget::~CameraViewWidget() {
@@ -162,13 +162,13 @@ void CameraViewWidget::initializeGL() {
 }
 
 void CameraViewWidget::showEvent(QShowEvent *event) {
-  frames.clear();
   if (!vipc_thread) {
     vipc_thread = new QThread();
     connect(vipc_thread, &QThread::started, [=]() { vipcThread(); });
     connect(vipc_thread, &QThread::finished, vipc_thread, &QObject::deleteLater);
     vipc_thread->start();
   }
+  clearFrames();
 }
 
 void CameraViewWidget::hideEvent(QHideEvent *event) {
@@ -178,6 +178,7 @@ void CameraViewWidget::hideEvent(QHideEvent *event) {
     vipc_thread->wait();
     vipc_thread = nullptr;
   }
+  clearFrames();
 }
 
 void CameraViewWidget::updateFrameMat() {
@@ -233,6 +234,7 @@ void CameraViewWidget::paintGL() {
   glClearColor(bg.redF(), bg.greenF(), bg.blueF(), bg.alphaF());
   glClear(GL_STENCIL_BUFFER_BIT | GL_COLOR_BUFFER_BIT);
 
+  std::lock_guard lk(frame_lock);
   if (frames.empty()) return;
 
   int frame_idx = frames.size() - 1;
@@ -249,13 +251,13 @@ void CameraViewWidget::paintGL() {
     qDebug() << "Skipped frame" << frames[frame_idx].first;
   }
   prev_frame_id = frames[frame_idx].first;
+  VisionBuf *frame = frames[frame_idx].second;
+  assert(frame != nullptr);
 
   glViewport(0, 0, width(), height());
   glBindVertexArray(frame_vao);
   glUseProgram(program->programId());
   glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
-
-  VisionBuf *frame = frames[frame_idx].second;
 
 #ifdef QCOM2
   glActiveTexture(GL_TEXTURE0);
@@ -288,7 +290,6 @@ void CameraViewWidget::paintGL() {
 
 void CameraViewWidget::vipcConnected(VisionIpcClient *vipc_client) {
   makeCurrent();
-  frames.clear();
   stream_width = vipc_client->buffers[0].width;
   stream_height = vipc_client->buffers[0].height;
   stream_stride = vipc_client->buffers[0].stride;
@@ -339,11 +340,7 @@ void CameraViewWidget::vipcConnected(VisionIpcClient *vipc_client) {
   updateFrameMat();
 }
 
-void CameraViewWidget::vipcFrameReceived(VisionBuf *buf, uint32_t frame_id) {
-  frames.push_back(std::make_pair(frame_id, buf));
-  while (frames.size() > FRAME_BUFFER_SIZE) {
-    frames.pop_front();
-  }
+void CameraViewWidget::vipcFrameReceived() {
   update();
 }
 
@@ -354,11 +351,13 @@ void CameraViewWidget::vipcThread() {
 
   while (!QThread::currentThread()->isInterruptionRequested()) {
     if (!vipc_client || cur_stream_type != stream_type) {
+      clearFrames();
       cur_stream_type = stream_type;
       vipc_client.reset(new VisionIpcClient(stream_name, cur_stream_type, false));
     }
 
     if (!vipc_client->connected) {
+      clearFrames();
       if (!vipc_client->connect(false)) {
         QThread::msleep(100);
         continue;
@@ -367,7 +366,14 @@ void CameraViewWidget::vipcThread() {
     }
 
     if (VisionBuf *buf = vipc_client->recv(&meta_main, 1000)) {
-      emit vipcThreadFrameReceived(buf, meta_main.frame_id);
+      {
+        std::lock_guard lk(frame_lock);
+        frames.push_back(std::make_pair(meta_main.frame_id, buf));
+        while (frames.size() > FRAME_BUFFER_SIZE) {
+          frames.pop_front();
+        }
+      }
+      emit vipcThreadFrameReceived();
     }
   }
 
@@ -377,4 +383,9 @@ void CameraViewWidget::vipcThread() {
   }
   egl_images.clear();
 #endif
+}
+
+void CameraViewWidget::clearFrames() {
+  std::lock_guard lk(frame_lock);
+  frames.clear();
 }
