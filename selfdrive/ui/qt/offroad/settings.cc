@@ -588,6 +588,12 @@ CommunityPanel::CommunityPanel(SettingsWindow *parent) : ListWidget(parent) {
       "",
       "../assets/offroad/icon_openpilot.png",
     },
+    {
+      "SmoothBraking",
+      tr("moother Braking Behind Lead"),
+      tr("More natural braking behavior when coming up to a slower vehicle."),
+      "../assets/offroad/icon_disengage_on_accelerator.svg",
+      },
   };
 
   for (auto &[param, title, desc, icon] : toggle_defs) {
