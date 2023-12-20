@@ -231,6 +231,7 @@ std::unordered_map<std::string, uint32_t> keys = {
 
     {"GapAdjustButton", PERSISTENT}, // PFEIFER - GAB
     {"ExperimentalModeToggle", PERSISTENT}, // PFEIFER - GAB
+    {"TurnVisionControl", PERSISTENT}, //PFEIFER - VTSC
 };
 
 } // namespace
