@@ -228,6 +228,9 @@ std::unordered_map<std::string, uint32_t> keys = {
     {"EnableLogging", PERSISTENT},
     {"ShowTurnSignal", PERSISTENT}, //boxkon
     {"SmoothBraking", PERSISTENT}, // frog
+
+    {"GapAdjustButton", PERSISTENT}, // PFEIFER - GAB
+    {"ExperimentalModeToggle", PERSISTENT}, // PFEIFER - GAB
 };
 
 } // namespace
