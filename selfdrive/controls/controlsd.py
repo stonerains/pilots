@@ -6,7 +6,7 @@ import threading
 from typing import SupportsFloat
 
 from cereal import car, log
-from openpilot.common.numpy_fast import clip
+from openpilot.common.numpy_fast import clip, interp
 from openpilot.common.realtime import config_realtime_process, Priority, Ratekeeper, DT_CTRL
 from openpilot.common.profiler import Profiler
 from openpilot.common.params import Params
@@ -302,9 +302,16 @@ class Controls:
     # Handle lane change
     if self.sm['lateralPlan'].laneChangeState == LaneChangeState.preLaneChange:
       direction = self.sm['lateralPlan'].laneChangeDirection
+      md = self.sm['modelV2']
+      left_road_edge = -interp(5.0, md.roadEdges[0].x, md.roadEdges[0].y)
+      right_road_edge = interp(5.0, md.roadEdges[1].x, md.roadEdges[1].y)
+
       if (CS.leftBlindspot and direction == LaneChangeDirection.left) or \
          (CS.rightBlindspot and direction == LaneChangeDirection.right):
         self.events.add(EventName.laneChangeBlocked)
+      elif ((left_road_edge < 3.5) and direction == LaneChangeDirection.left) or \
+         ((right_road_edge < 3.5) and direction == LaneChangeDirection.right):
+        self.events.add(EventName.laneChangeBlockedroadEdge)
       else:
         if direction == LaneChangeDirection.left:
           self.events.add(EventName.preLaneChangeLeft)
@@ -673,9 +680,9 @@ class Controls:
     # Send a "steering required alert" if saturation count has reached the limit
     if lac_log.active and not recent_steer_pressed and not self.CP.notCar:
       if self.CP.lateralTuning.which() == 'torque' and not self.joystick_mode:
-        undershooting = abs(lac_log.desiredLateralAccel) / abs(1e-3 + lac_log.actualLateralAccel) > 1.2
-        turning = abs(lac_log.desiredLateralAccel) > 1.0
-        good_speed = CS.vEgo > 5
+        undershooting = abs(lac_log.desiredLateralAccel) / abs(1e-3 + lac_log.actualLateralAccel) > 1.6
+        turning = abs(lac_log.desiredLateralAccel) > 1.3
+        good_speed = CS.vEgo > 15
         max_torque = abs(self.last_actuators.steer) > 0.99
         if undershooting and turning and good_speed and max_torque:
           lac_log.active and self.events.add(EventName.steerSaturated)
@@ -734,8 +741,8 @@ class Controls:
     hudControl.lanesVisible = self.enabled
     hudControl.leadVisible = self.sm['longitudinalPlan'].hasLead
 
-    hudControl.rightLaneVisible = True
-    hudControl.leftLaneVisible = True
+    hudControl.rightLaneVisible = CC.latActive
+    hudControl.leftLaneVisible = CC.latActive
 
     recent_blinker = (self.sm.frame - self.last_blinker_frame) * DT_CTRL < 5.0  # 5s blinker cooldown
     ldw_allowed = self.is_ldw_enabled and CS.vEgo > LDW_MIN_SPEED and not recent_blinker \

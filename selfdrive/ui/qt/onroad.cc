@@ -282,8 +282,8 @@ AnnotatedCameraWidget::AnnotatedCameraWidget(VisionStreamType type, QWidget* par
   ic_autohold_active = QPixmap("../assets/images/img_autohold_active.png").scaled(img_size, img_size, Qt::KeepAspectRatio, Qt::SmoothTransformation);
   ic_nda = QPixmap("../assets/images/img_nda.png");
   ic_hda = QPixmap("../assets/images/img_hda.png");
-  ic_nda2 = QPixmap("../assets/images/img_nda2.png");
-  ic_hda2 = QPixmap("../assets/images/img_hda2.png");
+  ic_nda2 = QPixmap("../assets/images/img_hda2.png");
+  ic_hda2 = QPixmap("../assets/images/img_nda2.png");
   ic_tire_pressure = QPixmap("../assets/images/img_tire_pressure.png");
   ic_turn_signal_l = QPixmap("../assets/images/turn_signal_l.png");
   ic_turn_signal_r = QPixmap("../assets/images/turn_signal_r.png");
@@ -591,6 +591,8 @@ void AnnotatedCameraWidget::drawHud(QPainter &p, const cereal::ModelDataV2::Read
   drawDeviceState(p);
   //drawTurnSignals(p);
   drawGpsStatus(p);
+  if(s->show_turnsignal) // boxkon
+    drawTurnSignals(p);
   drawMisc(p);
   drawDebugText(p);
 
@@ -653,6 +655,12 @@ void AnnotatedCameraWidget::drawSpeed(QPainter &p) {
     a = std::max(a, 60);
     color = QColor(255, a, a, 230);
   }
+
+  bool brakeLights = car_state.getBrakeLights();
+  bool brakePress = car_state.getBrakePressed();
+
+  if( brakePress ) color = redColor(200);
+  else if( brakeLights ) color = magentaColor(100);
 
   QString speed;
   speed.sprintf("%.0f", cur_speed);

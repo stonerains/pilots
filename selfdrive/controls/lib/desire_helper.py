@@ -1,11 +1,14 @@
 from cereal import log
 from openpilot.common.conversions import Conversions as CV
 from openpilot.common.realtime import DT_MDL
+from openpilot.common.params import Params
+import numpy as np
 
+AUTO_LCA_START_TIME = 1.0
 LaneChangeState = log.LateralPlan.LaneChangeState
 LaneChangeDirection = log.LateralPlan.LaneChangeDirection
 
-LANE_CHANGE_SPEED_MIN = 20 * CV.MPH_TO_MS
+LANE_CHANGE_SPEED_MIN = 40 * CV.KPH_TO_MS
 LANE_CHANGE_TIME_MAX = 10.
 
 DESIRES = {
@@ -40,17 +43,46 @@ class DesireHelper:
     self.prev_one_blinker = False
     self.desire = log.LateralPlan.Desire.none
 
-  def update(self, carstate, lateral_active, lane_change_prob):
+    self.lane_change_enabled = Params().get_bool('LaneChangeEnabled')
+    self.auto_lane_change_enabled = Params().get_bool('AutoLaneChangeEnabled')
+    self.auto_lane_change_timer = 0.0
+    self.prev_torque_applied = False
+    self.prev_road_edge_stat = 0
+
+
+  def detect_road_edge(self, md):
+    # Calculate probabiities for detecting road edges and lane lines
+    left_road_edge_prob = np.clip(1.0 - md.roadEdgeStds[0], 0.0, 1.0)
+    left_lane_nearside_prob = md.laneLineProbs[0]
+    right_road_edge_prob = np.clip(1.0 - md.roadEdgeStds[1], 0.0, 1.0)
+    right_lane_nearside_prob = md.laneLineProbs[3]
+
+    # Check conditions for detecting road edges
+    road_edge_stat = 0
+    if right_road_edge_prob > 0.35 and right_lane_nearside_prob < 0.2 and left_lane_nearside_prob >= right_lane_nearside_prob:
+      road_edge_stat += 2 # right road edge
+    if left_road_edge_prob > 0.35 and left_lane_nearside_prob < 0.2 and right_lane_nearside_prob >= left_lane_nearside_prob:
+      road_edge_stat += 1 # left road edge
+
+    return road_edge_stat
+
+  def update(self, carstate, lateral_active, lane_change_prob, md):
     v_ego = carstate.vEgo
     one_blinker = carstate.leftBlinker != carstate.rightBlinker
     below_lane_change_speed = v_ego < LANE_CHANGE_SPEED_MIN
+    road_edge_stat = self.detect_road_edge(md)
 
-    if not lateral_active or self.lane_change_timer > LANE_CHANGE_TIME_MAX:
+    if (not lateral_active) or (self.lane_change_timer > LANE_CHANGE_TIME_MAX) or (not one_blinker) or (not self.lane_change_enabled):
       self.lane_change_state = LaneChangeState.off
       self.lane_change_direction = LaneChangeDirection.none
     else:
       # LaneChangeState.off
       if self.lane_change_state == LaneChangeState.off and one_blinker and not self.prev_one_blinker and not below_lane_change_speed:
+        if carstate.leftBlinker:
+          self.lane_change_direction = LaneChangeDirection.left
+        elif carstate.rightBlinker:
+          self.lane_change_direction = LaneChangeDirection.right
+
         self.lane_change_state = LaneChangeState.preLaneChange
         self.lane_change_ll_prob = 1.0
 
@@ -62,16 +94,25 @@ class DesireHelper:
 
         torque_applied = carstate.steeringPressed and \
                          ((carstate.steeringTorque > 0 and self.lane_change_direction == LaneChangeDirection.left) or
-                          (carstate.steeringTorque < 0 and self.lane_change_direction == LaneChangeDirection.right))
+                          (carstate.steeringTorque < 0 and self.lane_change_direction == LaneChangeDirection.right)) or \
+                          self.auto_lane_change_enabled and \
+                          (AUTO_LCA_START_TIME+0.25) > self.auto_lane_change_timer > AUTO_LCA_START_TIME
 
         blindspot_detected = ((carstate.leftBlindspot and self.lane_change_direction == LaneChangeDirection.left) or
                               (carstate.rightBlindspot and self.lane_change_direction == LaneChangeDirection.right))
 
+        road_edge_detected = (((road_edge_stat & 1 != 0) and self.lane_change_direction == LaneChangeDirection.left) or
+                              ((road_edge_stat & 2 != 0) and self.lane_change_direction == LaneChangeDirection.right))
+
         if not one_blinker or below_lane_change_speed:
           self.lane_change_state = LaneChangeState.off
           self.lane_change_direction = LaneChangeDirection.none
-        elif torque_applied and not blindspot_detected:
+        elif torque_applied and (not blindspot_detected or self.prev_torque_applied) and (not road_edge_detected):
           self.lane_change_state = LaneChangeState.laneChangeStarting
+        elif torque_applied and blindspot_detected and self.auto_lane_change_timer != 10.0:
+          self.auto_lane_change_timer = 10.0
+        elif not torque_applied and self.auto_lane_change_timer == 10.0 and not self.prev_torque_applied:
+          self.prev_torque_applied = True
 
       # LaneChangeState.laneChangeStarting
       elif self.lane_change_state == LaneChangeState.laneChangeStarting:
@@ -98,6 +139,12 @@ class DesireHelper:
       self.lane_change_timer = 0.0
     else:
       self.lane_change_timer += DT_MDL
+
+    if self.lane_change_state == LaneChangeState.off:
+      self.auto_lane_change_timer = 0.0
+      self.prev_torque_applied = False
+    elif self.auto_lane_change_timer < (AUTO_LCA_START_TIME+0.25): # stop afer 3 sec resume from 10 when torque applied
+      self.auto_lane_change_timer += DT_MDL
 
     self.prev_one_blinker = one_blinker
 

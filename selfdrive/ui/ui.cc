@@ -222,6 +222,7 @@ void ui_update_params(UIState *s) {
   auto params = Params();
   s->scene.is_metric = params.getBool("IsMetric");
   s->scene.map_on_left = params.getBool("NavSettingLeftSide");
+  s->show_turnsignal = params.getBool("ShowTurnSignal"); // boxkon
 }
 
 void UIState::updateStatus() {
@@ -280,6 +281,7 @@ void UIState::update() {
 }
 
 void UIState::setPrimeType(PrimeType type) {
+  type = PrimeType::PURPLE;
   if (type != prime_type) {
     bool prev_prime = hasPrime();
 

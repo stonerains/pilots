@@ -121,7 +121,7 @@ enum PrimeType {
 const QColor bg_colors [] = {
   [STATUS_DISENGAGED] = QColor(0x17, 0x33, 0x49, 0xc8),
   [STATUS_OVERRIDE] = QColor(0x91, 0x9b, 0x95, 0xf1),
-  [STATUS_ENGAGED] = QColor(0x17, 0x86, 0x44, 0xf1),
+  [STATUS_ENGAGED] = QColor(0x00, 0xFF, 0x00, 0x64),
 };
 
 static std::map<cereal::ControlsState::AlertStatus, QColor> alert_colors = {
@@ -137,6 +137,9 @@ typedef struct UIScene {
   mat3 view_from_calib = DEFAULT_CALIBRATION;
   mat3 view_from_wide_calib = DEFAULT_CALIBRATION;
   cereal::PandaState::PandaType pandaType;
+  // Brake on SPD
+  bool brakePress;
+  bool brakeLights;
 
   // modelV2
   float lane_line_probs[4];
@@ -190,6 +193,7 @@ public:
   QTransform car_space_transform;
 
   bool recording = false;
+  bool show_turnsignal = false; //boxkon
 
 signals:
   void uiUpdate(const UIState &s);

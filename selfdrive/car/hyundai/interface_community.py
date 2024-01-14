@@ -20,9 +20,9 @@ def get_params(candidate, ret):
     ret.centerToFront = ret.wheelbase * 0.385
   elif candidate == CAR.GENESIS_EQ900:
     ret.mass = 2200
-    ret.wheelbase = 3.15
+    ret.wheelbase = 3.4
     ret.steerRatio = 16.0
-    ret.steerActuatorDelay = 0.075
+    ret.steerActuatorDelay = 0.1
   elif candidate == CAR.GENESIS_EQ900_L:
     ret.mass = 2290
     ret.wheelbase = 3.45

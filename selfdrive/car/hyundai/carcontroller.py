@@ -210,11 +210,13 @@ class CarController:
         else:
           can_sends.extend(hyundaican_community.create_acc_commands(self.packer, CC.enabled, accel, jerk, int(self.frame / 2),
                                                           hud_control.leadVisible, set_speed_in_units, stopping,
-                                                          CC.cruiseControl.override, CS, stock_cam))
+                                                          CC.cruiseControl.override, CS, stock_cam, SpeedLimiter.instance().get_active()))
 
       # 20 Hz LFA MFA message
-      if self.frame % 5 == 0 and self.CP.flags & HyundaiFlags.SEND_LFA.value:
+      if self.frame % 5 == 0 and self.CP.flags & HyundaiFlags.SEND_LFA.value and not self.CP.carFingerprint in CAN_GEARS["has_hda"]:
         can_sends.append(hyundaican.create_lfahda_mfc(self.packer, CC.enabled, SpeedLimiter.instance().get_active()))
+      elif self.frame % 5 == 0 and self.CP.carFingerprint in CAN_GEARS["has_hda"]:
+        can_sends.append(hyundaican_community.create_hda_mfc(self.packer, CC.enabled, SpeedLimiter.instance().get_active(), CS, hud_control.leftLaneVisible, hud_control.rightLaneVisible))
 
       # 5 Hz ACC options
       if self.frame % 20 == 0 and self.CP.openpilotLongitudinalControl:

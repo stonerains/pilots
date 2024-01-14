@@ -220,10 +220,13 @@ std::unordered_map<std::string, uint32_t> keys = {
     {"CruiseStateControl", PERSISTENT},
     {"SccGapAdjust", PERSISTENT},
     {"IsLdwsCar", PERSISTENT},
+    {"LaneChangeEnabled", PERSISTENT},
+    {"AutoLaneChangeEnabled", PERSISTENT},
     {"HapticFeedbackWhenSpeedCamera", PERSISTENT},
     {"UseExternalNaviRoutes", PERSISTENT},
     {"ShowDebugMessage", PERSISTENT},
     {"EnableLogging", PERSISTENT},
+    {"ShowTurnSignal", PERSISTENT}, //boxkon
 };
 
 } // namespace

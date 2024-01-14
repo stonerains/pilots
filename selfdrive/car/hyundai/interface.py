@@ -6,7 +6,7 @@ from openpilot.selfdrive.car.hyundai.hyundaicanfd import CanBus
 from openpilot.selfdrive.car.hyundai import interface_community
 from openpilot.selfdrive.car.hyundai.values import HyundaiFlags, CAR, DBC, CANFD_CAR, CAMERA_SCC_CAR, CANFD_RADAR_SCC_CAR, \
                                          CANFD_UNSUPPORTED_LONGITUDINAL_CAR, EV_CAR, HYBRID_CAR, LEGACY_SAFETY_MODE_CAR, \
-                                         UNSUPPORTED_LONGITUDINAL_CAR, Buttons, CANFD_HDA2_CAR, CANFD_HDA2_ALT_GEARS
+                                         UNSUPPORTED_LONGITUDINAL_CAR, Buttons, CANFD_HDA2_CAR, CANFD_HDA2_ALT_GEARS, CAN_GEARS
 from openpilot.selfdrive.car.hyundai.radar_interface import RADAR_START_ADDR
 from openpilot.selfdrive.car import create_button_events, get_safety_config
 from openpilot.selfdrive.car.interfaces import CarInterfaceBase, ACCEL_MIN, ACCEL_MAX
@@ -296,8 +296,11 @@ class CarInterface(CarInterfaceBase):
       ret.longitudinalTuning.kpV = [1.2, 1.0, 0.95, 0.8, 0.25]
       ret.longitudinalTuning.kiBP = [0., 130. * CV.KPH_TO_MS]
       ret.longitudinalTuning.kiV = [0.1, 0.05]
-      ret.stoppingDecelRate = 0.3
 
+      # ret.longitudinalTuning.kpV = [0.5]
+      # ret.longitudinalTuning.kiV = [0.0]
+
+      ret.stoppingDecelRate = 0.25
       ret.steerActuatorDelay = 0.1
       ret.steerLimitTimer = 2.0
 
@@ -309,7 +312,7 @@ class CarInterface(CarInterfaceBase):
     ret.stoppingControl = True
     ret.startingState = True
     ret.vEgoStarting = 0.2
-    ret.vEgoStopping = 0.2
+    ret.vEgoStopping = 0.3
     ret.startAccel = 1.0
     ret.longitudinalActuatorDelayLowerBound = 0.5
     ret.longitudinalActuatorDelayUpperBound = 0.5
@@ -347,6 +350,7 @@ class CarInterface(CarInterfaceBase):
       ret.hasAutoHold = 1151 in fingerprint[0]
       ret.hasLfaHda = 1157 in fingerprint[0]
       ret.hasNav = 1348 in fingerprint[0]
+      ret.hasHda = 1157 in fingerprint[0] and candidate in CAN_GEARS['has_hda']
 
       if not ret.openpilotLongitudinalControl:
         ret.radarUnavailable = ret.sccBus == -1

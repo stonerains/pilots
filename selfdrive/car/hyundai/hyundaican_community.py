@@ -1,4 +1,5 @@
 import crcmod
+import copy
 
 from openpilot.selfdrive.controls.neokii.cruise_state_manager import CruiseStateManager
 from openpilot.selfdrive.controls.neokii.navi_controller import SpeedLimiter
@@ -18,8 +19,38 @@ def create_mdps12(packer, frame, mdps12):
 
   return packer.make_can_msg("MDPS12", 2, values)
 
+def create_hda_mfc(packer, enabled, active, CS, left_lane, right_lane):
+  values = copy.copy(CS.hda_mfc)
+
+  ldwSysState = 0
+  if left_lane:
+    ldwSysState += 1
+  if right_lane:
+    ldwSysState += 2
+
+  values["HDA_LdwSysState"] = ldwSysState
+  values["HDA_USM"] = 2
+  values["HDA_VSetReq"] = 100
+
+  if active > 1 and CS.out.cruiseState.enabled:
+    values["HDA_Active"] = enabled
+    values["HDA_Icon_Wheel"] = 1
+    values["HDA_Icon_State"] = 2
+    values["HDA_Chime"] = 1
+  elif active > 1 and not CS.out.cruiseState.enabled:
+    values["HDA_Active"] = 0
+    values["HDA_Icon_Wheel"] = 0
+    values["HDA_Icon_State"] = 1
+    values["HDA_Chime"] = 0
+  else:
+    values["HDA_Active"] = 0
+    values["HDA_Icon_Wheel"] = 0
+    values["HDA_Icon_State"] = 0
+    values["HDA_Chime"] = 0
+
+  return packer.make_can_msg("LFAHDA_MFC", 0, values)
 def create_acc_commands(packer, enabled, accel, upper_jerk, idx, lead_visible,
-                        set_speed, stopping, long_override, CS, stock_cam):
+                        set_speed, stopping, long_override, CS, stock_cam, active):
   commands = []
 
   cruise_enabled = enabled and CS.out.cruiseState.enabled
@@ -39,7 +70,7 @@ def create_acc_commands(packer, enabled, accel, upper_jerk, idx, lead_visible,
   #values["ACC_ObjRelSpd"] = 10,
   #values["ACC_ObjDist"] = 50,  # close lead makes controls tighter
 
-  if not stock_cam:
+  if not stock_cam and active < 2:
     active_cam = SpeedLimiter.instance().get_cam_active()
     values["Navi_SCC_Camera_Act"] = 2 if active_cam else 0
     values["Navi_SCC_Camera_Status"] = 2 if active_cam else 0

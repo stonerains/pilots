@@ -123,6 +123,8 @@ struct CarEvent @0x9b1657f34caf3ad3 {
     cruiseOn @122;
     cruiseOff @123;
 
+    laneChangeBlockedroadEdge @124;
+
     radarCanErrorDEPRECATED @15;
     communityFeatureDisallowedDEPRECATED @62;
     radarCommIssueDEPRECATED @67;
@@ -732,4 +734,5 @@ struct CarParams {
   hasEms @78 :Bool;
   hasLfaHda @79 :Bool;
   hasNav @80 :Bool;
+  hasHda @81 :Bool;
 }
