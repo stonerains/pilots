@@ -72,7 +72,9 @@ function launch {
   export PYTHONPATH="$PWD"
 
   # hardware specific init
-  agnos_init
+  if [ -f /AGNOS ]; then
+    agnos_init
+  fi
 
   # write tmux scrollback to a file
   tmux capture-pane -pq -S-1000 > /tmp/launch_log
@@ -81,7 +83,10 @@ function launch {
 
   # start manager
   cd selfdrive/manager
-  ./build.py && ./manager.py
+  if [ ! -f $DIR/prebuilt ]; then
+    ./build.py
+  fi
+  ./manager.py
 
   # if broken, keep on screen error
   while true; do sleep 1; done
