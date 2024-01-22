@@ -988,6 +988,7 @@ struct ModelDataV2 {
 
   struct Action {
     desiredCurvature @0 :Float32;
+    fullCurvatures @1 :Float32;
   }
 }
 
@@ -1122,7 +1123,6 @@ struct LateralPlan @0xe1e9318e2ae8b51e {
   solverState @33 :SolverState;
 
   distances @34 :List(Float32);
-  fullCurvatures @35 :List(Float32);
 
   struct SolverState {
     x @0 :List(List(Float32));
@@ -1130,8 +1130,8 @@ struct LateralPlan @0xe1e9318e2ae8b51e {
   }
 
   # for ACL(boxkon)
-  autoLaneChangeEnabled @36 :Bool;
-  autoLaneChangeTimer @37 :Int8;
+  autoLaneChangeEnabled @35 :Bool;
+  autoLaneChangeTimer @36 :Int8;
 
   enum Desire {
     none @0;
