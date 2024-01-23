@@ -94,6 +94,7 @@ std::unordered_map<std::string, uint32_t> keys = {
     {"AssistNowToken", PERSISTENT},
     {"AthenadPid", PERSISTENT},
     {"AthenadUploadQueue", PERSISTENT},
+    {"AthenadRecentlyViewedRoutes", PERSISTENT},
     {"CalibrationParams", PERSISTENT},
     {"CameraDebugExpGain", CLEAR_ON_MANAGER_START},
     {"CameraDebugExpTime", CLEAR_ON_MANAGER_START},
@@ -210,17 +211,20 @@ std::unordered_map<std::string, uint32_t> keys = {
     {"MapboxToken", PERSISTENT},
     {"SupportedCars", PERSISTENT},
     {"SelectedCar", PERSISTENT},
+    //{"UseLanelines", PERSISTENT},
     {"SccOnBus2", PERSISTENT},
     {"CruiseStateControl", PERSISTENT},
     {"SccGapAdjust", PERSISTENT},
     {"IsLdwsCar", PERSISTENT},
-    {"LaneChangeEnabled", PERSISTENT},
-    {"AutoLaneChangeEnabled", PERSISTENT},
     {"HapticFeedbackWhenSpeedCamera", PERSISTENT},
     {"UseExternalNaviRoutes", PERSISTENT},
     {"ShowDebugMessage", PERSISTENT},
     {"EnableLogging", PERSISTENT},
+
+    {"LaneChangeEnabled", PERSISTENT}, //boxkon
+    {"AutoLaneChangeEnabled", PERSISTENT}, //boxkon
     {"ShowTurnSignal", PERSISTENT}, //boxkon
+
     {"SmoothBraking", PERSISTENT}, // frog
 
     {"GapAdjustButton", PERSISTENT}, // PFEIFER - GAB

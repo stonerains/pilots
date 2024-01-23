@@ -29,7 +29,7 @@ def manager_init() -> None:
   set_time(cloudlog)
 
   # save boot log
-  save_bootlog()
+  # save_bootlog()
 
   params = Params()
   params.clear_all(ParamKeyType.CLEAR_ON_MANAGER_START)

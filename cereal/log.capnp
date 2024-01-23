@@ -988,7 +988,6 @@ struct ModelDataV2 {
 
   struct Action {
     desiredCurvature @0 :Float32;
-    fullCurvatures @1 :Float32;
   }
 }
 
@@ -1121,8 +1120,6 @@ struct LateralPlan @0xe1e9318e2ae8b51e {
   solverExecutionTime @30 :Float32;
   solverCost @32 :Float32;
   solverState @33 :SolverState;
-
-  distances @34 :List(Float32);
 
   struct SolverState {
     x @0 :List(List(Float32));

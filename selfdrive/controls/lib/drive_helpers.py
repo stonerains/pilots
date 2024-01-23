@@ -4,6 +4,7 @@ from cereal import car, log
 from openpilot.common.conversions import Conversions as CV
 from openpilot.common.numpy_fast import clip, interp
 from openpilot.common.realtime import DT_CTRL
+from openpilot.selfdrive.controls.ntune import ntune_common_get
 
 # WARNING: this value was determined based on the model's training distribution,
 #          model predictions above this speed can be unpredictable
@@ -22,7 +23,6 @@ CAR_ROTATION_RADIUS = 0.0
 
 # EU guidelines
 MAX_LATERAL_JERK = 10.0
-
 MAX_VEL_ERR = 5.0
 
 ButtonEvent = car.CarState.ButtonEvent
@@ -170,7 +170,7 @@ def clip_curvature(v_ego, prev_curvature, new_curvature):
                                 prev_curvature - max_curvature_rate * DT_CTRL,
                                 prev_curvature + max_curvature_rate * DT_CTRL)
 
-  return safe_desired_curvature
+  return safe_desired_curvature * ntune_common_get('pathFactor')
 
 
 def get_friction(lateral_accel_error: float, lateral_accel_deadzone: float, friction_threshold: float,

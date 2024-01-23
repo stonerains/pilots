@@ -182,7 +182,7 @@ def main(demo=False):
     CP = msg
   cloudlog.info("plannerd got CarParams: %s", CP.carName)
   # TODO this needs more thought, use .2s extra for now to estimate other delays
-  steer_delay = ntune_common_get('steerActuatorDelay') + .2
+  steer_delay = CP.steerActuatorDelay + .2
   DH = DesireHelper()
 
 
@@ -227,7 +227,7 @@ def main(demo=False):
     is_rhd = sm["driverMonitoringState"].isRHD
     frame_id = sm["roadCameraState"].frameId
     # TODO add lag
-    lateral_control_params = np.array([sm["carState"].vEgo, steer_delay], dtype=np.float32)
+    lateral_control_params = np.array([sm["carState"].vEgo, ntune_common_get('steerActuatorDelay')], dtype=np.float32)
     if sm.updated["liveCalibration"]:
       device_from_calib_euler = np.array(sm["liveCalibration"].rpyCalib, dtype=np.float32)
       model_transform_main = get_warp_matrix(device_from_calib_euler, main_wide_camera, False).astype(np.float32)
