@@ -945,6 +945,10 @@ struct ModelDataV2 {
     laneChangeState @8 :LaneChangeState;
     laneChangeDirection @9 :LaneChangeDirection;
 
+    # for ALC(boxkon)
+    autoLaneChangeEnabled @10 :Bool;
+    autoLaneChangeTimer @11 :Int8;
+
 
     # deprecated
     brakeDisengageProbDEPRECATED @2 :Float32;
@@ -1125,10 +1129,6 @@ struct LateralPlan @0xe1e9318e2ae8b51e {
     x @0 :List(List(Float32));
     u @1 :List(Float32);
   }
-
-  # for ACL(boxkon)
-  autoLaneChangeEnabled @34 :Bool;
-  autoLaneChangeTimer @35 :Int8;
 
   enum Desire {
     none @0;
