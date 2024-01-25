@@ -15,7 +15,6 @@ from openpilot.selfdrive.controls.radard import RADAR_TO_CAMERA
 
 SYNC_MARGIN = 3.
 CREEP_SPEED = 2.3
-TRAJECTORY_SIZE = 33
 
 
 MIN_CURVE_SPEED = 32. * CV.KPH_TO_MS
