@@ -9,6 +9,7 @@ from openpilot.selfdrive.controls.neokii.cruise_state_manager import CruiseState
   V_CRUISE_MIN_CRUISE_STATE
 from openpilot.selfdrive.car.hyundai.values import Buttons
 from openpilot.common.params import Params
+from openpilot.selfdrive.controls.neokii.lane_planner import TRAJECTORY_SIZE
 from openpilot.selfdrive.controls.neokii.navi_controller import SpeedLimiter
 from openpilot.selfdrive.controls.ntune import ntune_common_get
 from openpilot.selfdrive.controls.radard import RADAR_TO_CAMERA
